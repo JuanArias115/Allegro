@@ -1,0 +1,50 @@
+# ----- General -----
+.DS_Store
+*.log
+*.tmp
+.env
+.env.local
+.env.*.local
+
+# ----- Firebase / secrets (NUNCA versionar credenciales) -----
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase-service-account*.json
+**/firebase_options.dart
+backend/secrets/
+*.pem
+*.p12
+
+# ----- .NET -----
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+*.dll
+*.pdb
+TestResults/
+[Dd]ebug/
+[Rr]elease/
+
+# ----- Flutter / Dart -----
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/build/
+mobile/.pub-cache/
+mobile/.pub/
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/key.properties
+mobile/**/*.g.dart.lock
+*.iml
+.idea/
+
+# ----- Docker -----
+postgres-data/
