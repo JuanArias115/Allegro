@@ -72,6 +72,19 @@ class ReservationFilter {
         status: clearStatus ? null : (status ?? this.status),
         active: active ?? this.active,
       );
+
+  // Igualdad por valor: imprescindible para que el provider .family no se
+  // recree en cada build (lo que causaría un bucle de recarga infinito).
+  @override
+  bool operator ==(Object other) =>
+      other is ReservationFilter &&
+      other.text == text &&
+      other.domeId == domeId &&
+      other.status == status &&
+      other.active == active;
+
+  @override
+  int get hashCode => Object.hash(text, domeId, status, active);
 }
 
 final reservationListProvider = FutureProvider.autoDispose
