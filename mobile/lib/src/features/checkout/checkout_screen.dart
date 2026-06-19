@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/design/tokens.dart';
 import '../../core/formatters.dart';
 import '../../core/whatsapp.dart';
+import '../../core/widgets/app_scaffold.dart';
 import '../../core/widgets/app_text_field.dart';
-import '../../core/widgets/common_widgets.dart';
+import '../../core/widgets/buttons.dart';
+import '../../core/widgets/cards.dart';
+import '../../core/widgets/feedback.dart';
+import '../../core/widgets/state_views.dart';
+import '../../core/widgets/status_badge.dart';
 import '../../models/enums.dart';
 import '../../models/reservation.dart';
 import '../../providers.dart';
@@ -32,20 +38,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   Future<void> _confirm(Reservation r) async {
     final amount = double.tryParse(_finalAmount.text.replaceAll(',', '')) ?? 0;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Confirmar cierre'),
-        content: Text(amount > 0
-            ? 'Se registrará un pago final de ${Formatters.money(amount)} y la reserva quedará finalizada.'
-            : 'La reserva quedará finalizada. ¿Continuar?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Finalizar')),
-        ],
-      ),
+    final ok = await showConfirmationSheet(
+      context,
+      title: 'Finalizar reserva',
+      message: amount > 0
+          ? 'Se registrará un pago final de ${Formatters.money(amount)} y la reserva quedará finalizada.'
+          : 'La reserva quedará marcada como finalizada.',
+      confirmLabel: 'Finalizar',
+      icon: Icons.point_of_sale_rounded,
     );
-    if (confirmed != true) return;
+    if (!ok) return;
 
     setState(() => _submitting = true);
     try {
@@ -58,14 +60,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ref.invalidate(reservationDetailProvider(r.id));
       ref.invalidate(todayProvider);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reserva finalizada.')),
-        );
+        AppSnackBar.show(context, 'Reserva finalizada', type: AppMessageType.success);
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+        AppSnackBar.show(context, '$e', type: AppMessageType.error);
         setState(() => _submitting = false);
       }
     }
@@ -74,72 +74,72 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final async = ref.watch(reservationDetailProvider(widget.id));
-    final scheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Checkout')),
+    return AppScaffold(
+      header: AppHeader(title: 'Checkout', onBack: () => context.pop()),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => ErrorRetry(error: e, onRetry: () => ref.invalidate(reservationDetailProvider(widget.id))),
+        loading: () => const LoadingState(),
+        error: (e, _) => ErrorState(error: e, onRetry: () => ref.invalidate(reservationDetailProvider(widget.id))),
         data: (r) {
-          final alreadyClosed = r.status == ReservationStatus.completed || r.status == ReservationStatus.cancelled;
+          final closed = r.status == ReservationStatus.completed || r.status == ReservationStatus.cancelled;
+          final payColor = paymentColor(paymentStateOf(r.balance, r.checkOut, DateTime.now()));
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x2, AppSpacing.x5, AppSpacing.x8),
             children: [
-              Text(r.guestName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+              Text(r.guestName, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 2),
               Text('${r.domeName} · ${Formatters.dateRange(r.checkIn, r.checkOut)}',
-                  style: TextStyle(color: scheme.outline)),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _row('Alojamiento', Formatters.money(r.lodgingPrice)),
-                      const SizedBox(height: 8),
-                      if (r.consumptions.isEmpty)
-                        Text('Sin consumos', style: TextStyle(color: scheme.outline))
-                      else
-                        ...r.consumptions.map((c) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: _row('${c.quantity}x ${c.productName}', Formatters.money(c.subtotal),
-                                  muted: true),
-                            )),
-                      const Divider(),
-                      _row('Total consumos', Formatters.money(r.totalConsumptions)),
-                      _row('Total cuenta', Formatters.money(r.totalDue), bold: true),
-                      _row('Abonado', Formatters.money(r.totalPaid)),
-                      _row('Saldo pendiente', Formatters.money(r.balance),
-                          bold: true, color: r.balance > 0 ? scheme.error : scheme.primary),
+                  style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: AppSpacing.x4),
+              AppCard(
+                padding: const EdgeInsets.all(AppSpacing.x5),
+                child: Column(
+                  children: [
+                    _row(context, 'Alojamiento', Formatters.money(r.lodgingPrice)),
+                    if (r.consumptions.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      ...r.consumptions.map((c) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: _row(context, '${c.quantity}x ${c.productName}', Formatters.money(c.subtotal), muted: true),
+                          )),
                     ],
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
+                    ),
+                    _row(context, 'Total cuenta', Formatters.money(r.totalDue), bold: true),
+                    const SizedBox(height: 8),
+                    _row(context, 'Abonado', Formatters.money(r.totalPaid), color: AppColors.forest),
+                    const SizedBox(height: 8),
+                    _row(context, 'Saldo pendiente', Formatters.money(r.balance), bold: true, color: payColor),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                icon: const Icon(Icons.share),
-                label: const Text('Compartir resumen por WhatsApp'),
-                onPressed: () =>
-                    showWhatsAppPreview(context, r, initial: WhatsAppTemplate.accountSummary),
+              const SizedBox(height: AppSpacing.x3),
+              SecondaryButton(
+                label: 'Compartir resumen por WhatsApp',
+                icon: Icons.chat_rounded,
+                expand: true,
+                onPressed: () => showWhatsAppPreview(context, r, initial: WhatsAppTemplate.accountSummary),
               ),
-              const SizedBox(height: 16),
-              if (alreadyClosed)
+              const SizedBox(height: AppSpacing.x5),
+              if (closed)
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(AppSpacing.x4),
                   decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.forest.withValues(alpha: 0.10),
+                    borderRadius: AppRadii.all(AppRadii.md),
                   ),
                   child: Row(children: [
-                    const Icon(Icons.info_outline),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text('Esta reserva ya está ${r.status.label.toLowerCase()}.')),
+                    const Icon(Icons.check_circle_rounded, color: AppColors.forest),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text('Esta reserva ya está ${r.status.label.toLowerCase()}.',
+                        style: Theme.of(context).textTheme.bodyMedium)),
                   ]),
                 )
               else ...[
-                Text('Registrar pago final (opcional)',
-                    style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 12),
+                Text('Registrar pago final (opcional)', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.x3),
                 AppTextField(
                   controller: _finalAmount,
                   label: 'Valor',
@@ -148,28 +148,24 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   helper: r.balance > 0 ? 'Saldo pendiente: ${Formatters.money(r.balance)}' : null,
                 ),
-                const SizedBox(height: 16),
-                AppFieldBox(
+                const SizedBox(height: AppSpacing.x3),
+                AppSelectField<PaymentMethod>(
                   label: 'Método',
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<PaymentMethod>(
-                      value: _method,
-                      isExpanded: true,
-                      borderRadius: BorderRadius.circular(16),
-                      style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
-                      items: [
-                        for (final m in PaymentMethod.values)
-                          DropdownMenuItem(value: m, child: Text(m.label)),
-                      ],
-                      onChanged: (m) => setState(() => _method = m ?? PaymentMethod.cash),
-                    ),
-                  ),
+                  icon: Icons.account_balance_wallet_rounded,
+                  value: _method,
+                  options: const [
+                    SelectOption(PaymentMethod.cash, 'Efectivo', icon: Icons.payments_rounded),
+                    SelectOption(PaymentMethod.transfer, 'Transferencia', icon: Icons.swap_horiz_rounded),
+                    SelectOption(PaymentMethod.other, 'Otro', icon: Icons.more_horiz_rounded),
+                  ],
+                  onChanged: (m) => setState(() => _method = m),
                 ),
-                const SizedBox(height: 20),
-                FilledButton.icon(
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text('Finalizar reserva'),
-                  onPressed: _submitting ? null : () => _confirm(r),
+                const SizedBox(height: AppSpacing.x6),
+                PrimaryButton(
+                  label: 'Finalizar reserva',
+                  icon: Icons.check_circle_rounded,
+                  loading: _submitting,
+                  onPressed: () => _confirm(r),
                 ),
               ],
             ],
@@ -179,16 +175,24 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-  Widget _row(String label, String value, {bool bold = false, bool muted = false, Color? color}) {
+  Widget _row(BuildContext context, String label, String value, {bool bold = false, bool muted = false, Color? color}) {
     final scheme = Theme.of(context).colorScheme;
-    final style = TextStyle(
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
-      color: color ?? (muted ? scheme.outline : null),
-      fontSize: bold ? 16 : 14,
-    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [Flexible(child: Text(label, style: style)), Text(value, style: style)],
+      children: [
+        Flexible(
+          child: Text(label,
+              style: TextStyle(
+                  fontSize: bold ? 16 : 14.5,
+                  fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+                  color: muted ? scheme.outline : (color ?? scheme.onSurface))),
+        ),
+        Text(value,
+            style: TextStyle(
+                fontSize: bold ? 17 : 14.5,
+                fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
+                color: muted ? scheme.outline : color)),
+      ],
     );
   }
 }

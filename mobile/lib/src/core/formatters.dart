@@ -11,10 +11,24 @@ class Formatters {
   static final DateFormat _date = DateFormat('d MMM yyyy', 'es');
   static final DateFormat _dateShort = DateFormat('d MMM', 'es');
   static final DateFormat _dateTime = DateFormat('d MMM yyyy, h:mm a', 'es');
+  static final DateFormat _weekday = DateFormat("EEEE, d 'de' MMMM", 'es');
+  static final DateFormat _monthYear = DateFormat('MMMM yyyy', 'es');
 
   static String money(num value) => _currency.format(value);
 
   static String date(DateTime d) => _date.format(d);
+
+  /// "viernes, 19 de junio" con la primera letra en mayúscula.
+  static String weekdayDate(DateTime d) {
+    final s = _weekday.format(d);
+    return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  }
+
+  /// "Junio 2026" para encabezados de calendario.
+  static String monthYear(DateTime d) {
+    final s = _monthYear.format(d);
+    return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  }
   static String dateShort(DateTime d) => _dateShort.format(d);
   static String dateTime(DateTime d) => _dateTime.format(d.toLocal());
 

@@ -46,11 +46,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, child) => HomeShell(child: child),
         routes: [
           GoRoute(path: '/today', builder: (c, s) => const TodayScreen()),
-          GoRoute(path: '/calendar', builder: (c, s) => const CalendarScreen()),
           GoRoute(path: '/reservations', builder: (c, s) => const ReservationsListScreen()),
-          GoRoute(path: '/products', builder: (c, s) => const ProductsScreen()),
+          GoRoute(path: '/calendar', builder: (c, s) => const CalendarScreen()),
           GoRoute(path: '/more', builder: (c, s) => const MoreScreen()),
         ],
+      ),
+      // Productos vive fuera del navbar (accesible desde "Más").
+      GoRoute(
+        path: '/products',
+        parentNavigatorKey: _rootKey,
+        builder: (c, s) => const ProductsScreen(),
       ),
       GoRoute(
         path: '/history',

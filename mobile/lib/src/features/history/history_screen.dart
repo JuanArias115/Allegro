@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/widgets/common_widgets.dart';
-import '../../core/widgets/reservation_card.dart';
+import '../../core/design/tokens.dart';
+import '../../core/widgets/app_scaffold.dart';
+import '../../core/widgets/cards.dart';
+import '../../core/widgets/state_views.dart';
 import '../../models/enums.dart';
 import '../../providers.dart';
 
-/// Historial: muestra finalizadas y canceladas, separadas de las activas.
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
@@ -16,69 +17,97 @@ class HistoryScreen extends ConsumerStatefulWidget {
 }
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
+  final _searchCtrl = TextEditingController();
   String _text = '';
   ReservationStatus _status = ReservationStatus.completed;
 
   @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final filter = ReservationFilter(
-      text: _text.trim().isEmpty ? null : _text.trim(),
-      status: _status,
-    );
+    final filter = ReservationFilter(text: _text.trim().isEmpty ? null : _text.trim(), status: _status);
     final listAsync = ref.watch(reservationListProvider(filter));
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Historial')),
+    return AppScaffold(
+      header: AppHeader(title: 'Historial', onBack: () => context.pop()),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x1, AppSpacing.x5, AppSpacing.x3),
             child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Buscar por nombre o teléfono',
-                prefixIcon: Icon(Icons.search),
-              ),
+              controller: _searchCtrl,
               onChanged: (v) => setState(() => _text = v),
+              style: const TextStyle(fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
+                hintText: 'Buscar por nombre o teléfono',
+                prefixIcon: Icon(Icons.search_rounded, color: Theme.of(context).colorScheme.outline),
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12),
-            child: SegmentedButton<ReservationStatus>(
-              segments: const [
-                ButtonSegment(value: ReservationStatus.completed, label: Text('Finalizadas')),
-                ButtonSegment(value: ReservationStatus.cancelled, label: Text('Canceladas')),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.x5, 0, AppSpacing.x5, AppSpacing.x2),
+            child: Row(
+              children: [
+                Expanded(child: _Tab(label: 'Finalizadas', selected: _status == ReservationStatus.completed, onTap: () => setState(() => _status = ReservationStatus.completed))),
+                const SizedBox(width: AppSpacing.x2),
+                Expanded(child: _Tab(label: 'Canceladas', selected: _status == ReservationStatus.cancelled, onTap: () => setState(() => _status = ReservationStatus.cancelled))),
               ],
-              selected: {_status},
-              onSelectionChanged: (s) => setState(() => _status = s.first),
             ),
           ),
           Expanded(
             child: listAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => ErrorRetry(
-                  error: e, onRetry: () => ref.invalidate(reservationListProvider(filter))),
+              loading: () => const LoadingState(),
+              error: (e, _) => ErrorState(error: e, onRetry: () => ref.invalidate(reservationListProvider(filter))),
               data: (items) {
                 if (items.isEmpty) {
                   return EmptyState(
-                    icon: Icons.inventory_2_outlined,
-                    title: _status == ReservationStatus.completed
-                        ? 'Sin reservas finalizadas'
-                        : 'Sin reservas canceladas',
+                    icon: Icons.inventory_2_rounded,
+                    title: _status == ReservationStatus.completed ? 'Sin finalizadas' : 'Sin canceladas',
+                    accent: AppColors.textSecondary,
                   );
                 }
                 return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x2, AppSpacing.x5, AppSpacing.x8),
                   itemCount: items.length,
-                  itemBuilder: (c, i) => ReservationCard(
-                    reservation: items[i],
-                    onTap: () => context.push('/reservations/${items[i].id}'),
-                  ),
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.x3),
+                  itemBuilder: (c, i) => ReservationCard(reservation: items[i], onTap: () => context.push('/reservations/${items[i].id}')),
                 );
               },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _Tab extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _Tab({required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? AppColors.forest : Theme.of(context).colorScheme.surface,
+      borderRadius: AppRadii.all(AppRadii.md),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Center(
+            child: Text(label,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: selected ? AppColors.white : Theme.of(context).colorScheme.onSurface)),
+          ),
+        ),
       ),
     );
   }

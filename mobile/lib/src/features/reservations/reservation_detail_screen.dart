@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/design/tokens.dart';
 import '../../core/formatters.dart';
+import '../../core/widgets/app_scaffold.dart';
+import '../../core/widgets/buttons.dart';
+import '../../core/widgets/cards.dart';
+import '../../core/widgets/feedback.dart';
+import '../../core/widgets/state_views.dart';
+import '../../core/widgets/status_badge.dart';
 import '../../core/whatsapp.dart';
-import '../../core/widgets/common_widgets.dart';
 import '../../models/enums.dart';
 import '../../models/reservation.dart';
 import '../../providers.dart';
@@ -25,9 +31,10 @@ class ReservationDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(reservationDetailProvider(id));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reserva'),
+    return AppScaffold(
+      header: AppHeader(
+        title: 'Reserva',
+        onBack: () => context.pop(),
         actions: [
           async.maybeWhen(
             data: (r) => _Menu(reservation: r, onChanged: () => _refresh(ref)),
@@ -36,8 +43,8 @@ class ReservationDetailScreen extends ConsumerWidget {
         ],
       ),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => ErrorRetry(error: e, onRetry: () => _refresh(ref)),
+        loading: () => const LoadingState(),
+        error: (e, _) => ErrorState(error: e, onRetry: () => _refresh(ref)),
         data: (r) => _Detail(reservation: r, onChanged: () => _refresh(ref)),
       ),
     );
@@ -52,224 +59,220 @@ class _Detail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final r = reservation;
-    final scheme = Theme.of(context).colorScheme;
     final repo = ref.read(reservationRepositoryProvider);
     final canEdit = r.status == ReservationStatus.confirmed || r.status == ReservationStatus.checkedIn;
+    final payState = paymentStateOf(r.balance, r.checkOut, DateTime.now());
+    final payColor = paymentColor(payState);
 
-    Future<void> guard(Future<void> Function() action) async {
+    Future<void> guard(Future<void> Function() action, String okMsg) async {
       try {
         await action();
         onChanged();
+        if (context.mounted) AppSnackBar.show(context, okMsg, type: AppMessageType.success);
       } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
-        }
+        if (context.mounted) AppSnackBar.show(context, '$e', type: AppMessageType.error);
       }
     }
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 32),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x2, AppSpacing.x5, AppSpacing.x8),
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(r.guestName,
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                    ),
-                    StatusChip(r.status),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _InfoRow(Icons.cabin_rounded, 'Domo', r.domeName),
-                _InfoRow(Icons.calendar_today_rounded, 'Fechas',
-                    '${Formatters.date(r.checkIn)} → ${Formatters.date(r.checkOut)} (${Formatters.nights(r.checkIn, r.checkOut)} noches)'),
-                _InfoRow(Icons.people_alt_rounded, 'Huéspedes', '${r.guestCount}'),
-                _InfoRow(Icons.phone_rounded, 'Teléfono', r.phone),
-                if (r.notes != null && r.notes!.isNotEmpty)
-                  _InfoRow(Icons.notes_rounded, 'Notas', r.notes!),
-              ],
-            ),
+        AppCard(
+          padding: const EdgeInsets.all(AppSpacing.x5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text(r.guestName, style: Theme.of(context).textTheme.titleLarge)),
+                  const SizedBox(width: 8),
+                  StatusBadge.reservation(r.status),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.x4),
+              _info(context, Icons.cabin_rounded, 'Domo', r.domeName),
+              _info(context, Icons.calendar_today_rounded, 'Fechas',
+                  '${Formatters.date(r.checkIn)} → ${Formatters.date(r.checkOut)} · ${Formatters.nights(r.checkIn, r.checkOut)} noche(s)'),
+              _info(context, Icons.people_alt_rounded, 'Huéspedes', '${r.guestCount}'),
+              _info(context, Icons.phone_rounded, 'Teléfono', r.phone),
+              if (r.notes != null && r.notes!.isNotEmpty)
+                _info(context, Icons.notes_rounded, 'Notas', r.notes!),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        _MoneyCard(reservation: r),
-        SectionHeader('Abonos (${r.payments.length})'),
+        const SizedBox(height: AppSpacing.x3),
+        _MoneyCard(reservation: r, payColor: payColor),
+        SectionHeader(title: 'Abonos · ${r.payments.length}', padding: const EdgeInsets.fromLTRB(2, AppSpacing.x6, 2, AppSpacing.x3)),
         if (r.payments.isEmpty)
-          _MutedTile('Aún no hay abonos registrados.')
+          _muted(context, 'Aún no hay abonos registrados.')
         else
-          ...r.payments.map((p) => Card(
-                child: ListTile(
-                  leading: const Icon(Icons.payments_outlined),
-                  title: Text(Formatters.money(p.amount)),
-                  subtitle: Text('${p.method.label} · ${Formatters.dateTime(p.paidAt)}'
-                      '${p.note != null && p.note!.isNotEmpty ? '\n${p.note}' : ''}'),
-                  isThreeLine: p.note != null && p.note!.isNotEmpty,
+          for (final p in r.payments)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.x2),
+              child: AppCard(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                child: Row(
+                  children: [
+                    const CategoryIcon(icon: Icons.payments_rounded, color: AppColors.forest, size: 40),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(Formatters.money(p.amount), style: Theme.of(context).textTheme.titleSmall),
+                          const SizedBox(height: 2),
+                          Text('${p.method.label} · ${Formatters.dateTime(p.paidAt)}',
+                              style: Theme.of(context).textTheme.bodySmall),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              )),
-        SectionHeader('Consumos (${r.consumptions.length})'),
+              ),
+            ),
+        SectionHeader(title: 'Consumos · ${r.consumptions.length}', padding: const EdgeInsets.fromLTRB(2, AppSpacing.x5, 2, AppSpacing.x3)),
         if (r.consumptions.isEmpty)
-          _MutedTile('Sin consumos adicionales.')
+          _muted(context, 'Sin consumos adicionales.')
         else
-          ...r.consumptions.map((c) => Card(
-                child: ListTile(
-                  leading: const Icon(Icons.local_cafe_outlined),
-                  title: Text('${c.quantity}x ${c.productName}'),
-                  subtitle: Text('${Formatters.money(c.unitPrice)} c/u'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(Formatters.money(c.subtotal),
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
-                      if (canEdit)
-                        IconButton(
-                          icon: Icon(Icons.close, size: 18, color: scheme.error),
-                          onPressed: () => guard(() => repo.removeConsumption(r.id, c.id)),
-                        ),
-                    ],
-                  ),
+          for (final c in r.consumptions)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.x2),
+              child: AppCard(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Row(
+                  children: [
+                    const CategoryIcon(icon: Icons.local_cafe_rounded, color: AppColors.blue, size: 40),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${c.quantity}x ${c.productName}', style: Theme.of(context).textTheme.titleSmall),
+                          const SizedBox(height: 2),
+                          Text('${Formatters.money(c.unitPrice)} c/u', style: Theme.of(context).textTheme.bodySmall),
+                        ],
+                      ),
+                    ),
+                    Text(Formatters.money(c.subtotal), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    if (canEdit)
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.coral),
+                        onPressed: () => guard(() => repo.removeConsumption(r.id, c.id), 'Consumo eliminado'),
+                      ),
+                  ],
                 ),
-              )),
-        const SizedBox(height: 20),
+              ),
+            ),
         if (canEdit) ...[
+          const SizedBox(height: AppSpacing.x6),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.add_card),
-                  label: const Text('Abono'),
+                child: SecondaryButton(
+                  label: 'Abono',
+                  icon: Icons.add_card_rounded,
+                  expand: true,
                   onPressed: () async {
-                    final result = await showAddPaymentSheet(context);
-                    if (result != null) {
-                      await guard(() => repo.addPayment(r.id,
-                          amount: result.amount, method: result.method, note: result.note));
+                    final res = await showAddPaymentSheet(context);
+                    if (res != null) {
+                      await guard(() => repo.addPayment(r.id, amount: res.amount, method: res.method, note: res.note), 'Abono registrado');
                     }
                   },
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.x3),
               Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.local_cafe_outlined),
-                  label: const Text('Consumo'),
+                child: SecondaryButton(
+                  label: 'Consumo',
+                  icon: Icons.local_cafe_rounded,
+                  expand: true,
+                  color: AppColors.blue,
                   onPressed: () async {
-                    final result = await showAddConsumptionSheet(context, ref);
-                    if (result != null) {
-                      await guard(() => repo.addConsumption(r.id,
-                          productId: result.productId, quantity: result.quantity));
+                    final res = await showAddConsumptionSheet(context, ref);
+                    if (res != null) {
+                      await guard(() => repo.addConsumption(r.id, productId: res.productId, quantity: res.quantity), 'Consumo agregado');
                     }
                   },
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            icon: const Icon(Icons.point_of_sale_rounded),
-            label: const Text('Checkout'),
+          const SizedBox(height: AppSpacing.x3),
+          PrimaryButton(
+            label: 'Checkout',
+            icon: Icons.point_of_sale_rounded,
             onPressed: () => context.push('/reservations/${r.id}/checkout'),
           ),
         ],
       ],
     );
   }
-}
 
-class _MoneyCard extends StatelessWidget {
-  final Reservation reservation;
-  const _MoneyCard({required this.reservation});
-
-  @override
-  Widget build(BuildContext context) {
-    final r = reservation;
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _MoneyRow('Alojamiento', r.lodgingPrice),
-            _MoneyRow('Consumos', r.totalConsumptions),
-            const Divider(),
-            _MoneyRow('Total', r.totalDue, bold: true),
-            _MoneyRow('Abonado', r.totalPaid, color: scheme.primary),
-            _MoneyRow('Saldo pendiente', r.balance,
-                bold: true, color: r.balance > 0 ? scheme.error : scheme.primary),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MoneyRow extends StatelessWidget {
-  final String label;
-  final double value;
-  final bool bold;
-  final Color? color;
-  const _MoneyRow(this.label, this.value, {this.bold = false, this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final style = TextStyle(
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
-      color: color,
-      fontSize: bold ? 16 : 14,
-    );
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(label, style: style), Text(Formatters.money(value), style: style)],
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  const _InfoRow(this.icon, this.label, this.value);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _info(BuildContext context, IconData icon, String label, String value) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: scheme.outline),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 86,
-            child: Text(label, style: TextStyle(color: scheme.outline)),
-          ),
-          Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500))),
+          const SizedBox(width: 12),
+          SizedBox(width: 84, child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
+          Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w600, height: 1.3))),
         ],
       ),
     );
   }
+
+  Widget _muted(BuildContext context, String text) =>
+      Padding(padding: const EdgeInsets.only(left: 4), child: Text(text, style: Theme.of(context).textTheme.bodyMedium));
 }
 
-class _MutedTile extends StatelessWidget {
-  final String text;
-  const _MutedTile(this.text);
+class _MoneyCard extends StatelessWidget {
+  final Reservation reservation;
+  final Color payColor;
+  const _MoneyCard({required this.reservation, required this.payColor});
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        child: Text(text, style: TextStyle(color: Theme.of(context).colorScheme.outline)),
-      );
+  Widget build(BuildContext context) {
+    final r = reservation;
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.x5),
+      child: Column(
+        children: [
+          _row(context, 'Alojamiento', Formatters.money(r.lodgingPrice)),
+          const SizedBox(height: 8),
+          _row(context, 'Consumos', Formatters.money(r.totalConsumptions)),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
+          ),
+          _row(context, 'Total', Formatters.money(r.totalDue), bold: true),
+          const SizedBox(height: 8),
+          _row(context, 'Abonado', Formatters.money(r.totalPaid), color: AppColors.forest),
+          const SizedBox(height: 8),
+          _row(context, r.balance > 0 ? 'Saldo pendiente' : 'Saldo', Formatters.money(r.balance), bold: true, color: payColor),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(BuildContext context, String label, String value, {bool bold = false, Color? color}) {
+    final style = TextStyle(
+      fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
+      fontSize: bold ? 17 : 15,
+      color: color,
+    );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(fontWeight: FontWeight.w500, fontSize: bold ? 16 : 14.5, color: color ?? Theme.of(context).colorScheme.onSurface)),
+        Text(value, style: style),
+      ],
+    );
+  }
 }
 
-/// Menú de acciones: editar, cambiar estado y compartir por WhatsApp.
 class _Menu extends ConsumerWidget {
   final Reservation reservation;
   final VoidCallback onChanged;
@@ -279,40 +282,53 @@ class _Menu extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final repo = ref.read(reservationRepositoryProvider);
     final r = reservation;
+    final active = r.status != ReservationStatus.completed && r.status != ReservationStatus.cancelled;
 
     return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert_rounded),
+      shape: RoundedRectangleBorder(borderRadius: AppRadii.all(AppRadii.md)),
       onSelected: (value) async {
         if (value == 'edit') {
           context.push('/reservations/${r.id}/edit');
-          return;
-        }
-        if (value.startsWith('status:')) {
+        } else if (value.startsWith('status:')) {
           final status = ReservationStatus.fromWire(value.substring(7));
           try {
             await repo.changeStatus(r.id, status);
             onChanged();
+            if (context.mounted) AppSnackBar.show(context, 'Estado actualizado', type: AppMessageType.success);
           } catch (e) {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
-            }
+            if (context.mounted) AppSnackBar.show(context, '$e', type: AppMessageType.error);
           }
-          return;
-        }
-        if (value.startsWith('wa:')) {
-          final template = WhatsAppTemplate.values.firstWhere((t) => t.name == value.substring(3));
-          if (context.mounted) await showWhatsAppPreview(context, r, initial: template);
+        } else if (value.startsWith('wa:')) {
+          final t = WhatsAppTemplate.values.firstWhere((t) => t.name == value.substring(3));
+          if (context.mounted) await showWhatsAppPreview(context, r, initial: t);
         }
       },
       itemBuilder: (context) => [
-        if (r.status != ReservationStatus.completed && r.status != ReservationStatus.cancelled)
-          const PopupMenuItem(value: 'edit', child: Text('Editar')),
-        const PopupMenuDivider(),
+        if (active) const PopupMenuItem(value: 'edit', child: _MenuRow(icon: Icons.edit_rounded, label: 'Editar')),
         for (final s in ReservationStatus.values)
           if (s != r.status)
-            PopupMenuItem(value: 'status:${s.wire}', child: Text('Marcar: ${s.label}')),
+            PopupMenuItem(value: 'status:${s.wire}', child: _MenuRow(icon: reservationStatusIcon(s), label: 'Marcar: ${s.label}')),
         const PopupMenuDivider(),
         for (final t in WhatsAppTemplate.values)
-          PopupMenuItem(value: 'wa:${t.name}', child: Text('WhatsApp: ${t.label}')),
+          PopupMenuItem(value: 'wa:${t.name}', child: _MenuRow(icon: Icons.chat_rounded, label: t.label)),
+      ],
+    );
+  }
+}
+
+class _MenuRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _MenuRow({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Theme.of(context).colorScheme.outline),
+        const SizedBox(width: 12),
+        Flexible(child: Text(label)),
       ],
     );
   }
