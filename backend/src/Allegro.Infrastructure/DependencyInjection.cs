@@ -13,8 +13,10 @@ public static class DependencyInjection
         var connection = config.GetConnectionString("Default")
             ?? throw new InvalidOperationException("Falta la cadena de conexión 'ConnectionStrings:Default'.");
 
+        // Sin estrategia de reintento: usamos transacciones explícitas en las
+        // operaciones financieras, incompatibles con el reintento automático.
         services.AddDbContext<AllegroDbContext>(options =>
-            options.UseNpgsql(connection, npg => npg.EnableRetryOnFailure()));
+            options.UseNpgsql(connection));
 
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AllegroDbContext>());
         services.AddSingleton<IClock, SystemClock>();
