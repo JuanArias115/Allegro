@@ -20,7 +20,10 @@ final _rootKey = GlobalKey<NavigatorState>();
 final _shellKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final auth = ref.watch(authServiceProvider);
+  // ref.read (no watch): el GoRouter se crea una sola vez. Reaccionamos a los
+  // cambios de sesión con refreshListenable, no recreando el router (lo que
+  // duplicaría las GlobalKey de navegación).
+  final auth = ref.read(authServiceProvider);
 
   return GoRouter(
     navigatorKey: _rootKey,

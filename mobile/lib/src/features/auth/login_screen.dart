@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../providers.dart';
 
@@ -54,8 +55,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(Icons.cabin_rounded,
-                      size: 64, color: Theme.of(context).colorScheme.primary),
+                  SvgPicture.asset('assets/logo.svg', height: 120),
                   const SizedBox(height: 16),
                   Text('Allegro',
                       textAlign: TextAlign.center,
