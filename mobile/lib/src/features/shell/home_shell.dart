@@ -41,9 +41,11 @@ class _TabSpec {
 }
 
 /// Barra inferior tipo "píldora" flotante, inspirada en interfaces limpias.
-/// El escalado de texto se acota localmente para que nunca desborde, aunque el
-/// teléfono use una fuente muy grande.
+/// Altura fija para que no se expanda, y escalado de texto acotado para que las
+/// etiquetas no se deformen ni se corten aunque el teléfono use fuente grande.
 class _PillNavBar extends StatelessWidget {
+  static const double _barHeight = 62;
+
   final int currentIndex;
   final List<_TabSpec> tabs;
   final ValueChanged<int> onSelect;
@@ -64,14 +66,15 @@ class _PillNavBar extends StatelessWidget {
       child: MediaQuery.withClampedTextScaling(
         maxScaleFactor: 1.15,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
+          padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
           child: Container(
+            height: _barHeight,
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1C1F1D) : Colors.white,
-              borderRadius: BorderRadius.circular(26),
+              borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
+                  color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.10),
                   blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
@@ -84,7 +87,7 @@ class _PillNavBar extends StatelessWidget {
                     child: _NavItem(
                       spec: tabs[i],
                       active: i == currentIndex,
-                      color: scheme,
+                      scheme: scheme,
                       onTap: () => onSelect(i),
                     ),
                   ),
@@ -100,52 +103,52 @@ class _PillNavBar extends StatelessWidget {
 class _NavItem extends StatelessWidget {
   final _TabSpec spec;
   final bool active;
-  final ColorScheme color;
+  final ColorScheme scheme;
   final VoidCallback onTap;
 
   const _NavItem({
     required this.spec,
     required this.active,
-    required this.color,
+    required this.scheme,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final fg = active ? color.primary : color.onSurfaceVariant;
+    final fg = active ? scheme.primary : scheme.onSurfaceVariant;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Center(
-          child: AnimatedContainer(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             decoration: BoxDecoration(
-              color: active ? color.primary.withValues(alpha: 0.12) : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
+              color: active ? scheme.primary.withValues(alpha: 0.14) : Colors.transparent,
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(active ? spec.selectedIcon : spec.icon, size: 24, color: fg),
-                const SizedBox(height: 3),
-                Text(
-                  spec.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.0,
-                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    color: fg,
-                  ),
+            child: Icon(active ? spec.selectedIcon : spec.icon, size: 23, color: fg),
+          ),
+          const SizedBox(height: 3),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                spec.label,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 11,
+                  height: 1.0,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                  color: fg,
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
