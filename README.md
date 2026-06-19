@@ -2,7 +2,7 @@
 
 Aplicación interna para administrar un glamping muy pequeño, operado por **una sola persona** y compuesto por **dos domos**. Permite ver qué pasa hoy, gestionar reservas evitando cruces, registrar abonos y consumos, hacer checkout y preparar mensajes de WhatsApp.
 
-> No es un sistema hotelero complejo. No incluye facturación electrónica, contabilidad avanzada, múltiples propiedades, canales (Airbnb/Booking) ni nada relacionado con TRA.
+> No es un sistema hotelero complejo. No incluye facturación electrónica, contabilidad avanzada, múltiples propiedades ni integración con canales externos (Airbnb/Booking).
 
 ## Arquitectura
 
