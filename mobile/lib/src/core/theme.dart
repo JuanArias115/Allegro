@@ -9,6 +9,14 @@ class AppTheme {
   static ThemeData light() => _build(Brightness.light);
   static ThemeData dark() => _build(Brightness.dark);
 
+  /// Color del borde sutil de los campos (estilo Rappi). Reutilizable por
+  /// widgets que imitan un campo (tarjetas de fecha, selects, etc.).
+  static Color _fieldBorder(bool isDark) =>
+      isDark ? const Color(0xFF2E322F) : const Color(0xFFE6E8E4);
+
+  static Color fieldBorder(BuildContext context) =>
+      _fieldBorder(Theme.of(context).brightness == Brightness.dark);
+
   static ThemeData _build(Brightness brightness) {
     final scheme = ColorScheme.fromSeed(seedColor: _seed, brightness: brightness);
     final isDark = brightness == Brightness.dark;
@@ -44,12 +52,32 @@ class AppTheme {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
       inputDecorationTheme: InputDecorationTheme(
+        // Campos altos, redondeados y blancos con borde muy sutil (estilo Rappi).
         filled: true,
+        fillColor: isDark ? const Color(0xFF1C1F1D) : Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        hintStyle: TextStyle(color: scheme.outline, fontWeight: FontWeight.w400),
+        prefixIconColor: scheme.outline,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: _fieldBorder(isDark)),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: _fieldBorder(isDark)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: scheme.primary, width: 1.8),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: scheme.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: scheme.error, width: 1.8),
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

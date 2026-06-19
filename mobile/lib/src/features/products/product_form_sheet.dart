@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/widgets/app_text_field.dart';
 import '../../models/enums.dart';
 import '../../models/product.dart';
 import '../../providers.dart';
@@ -88,26 +89,37 @@ class _ProductFormSheetState extends ConsumerState<_ProductFormSheet> {
             Text(_isEdit ? 'Editar producto' : 'Nuevo producto',
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
-            TextFormField(
+            AppTextField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Nombre'),
+              label: 'Nombre',
+              required: true,
+              hint: 'Nombre del producto',
               validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
             ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<ProductCategory>(
-              initialValue: _category,
-              decoration: const InputDecoration(labelText: 'Categoría'),
-              items: [
-                for (final c in ProductCategory.values)
-                  DropdownMenuItem(value: c, child: Text(c.label)),
-              ],
-              onChanged: (c) => setState(() => _category = c ?? ProductCategory.other),
+            const SizedBox(height: 16),
+            AppFieldBox(
+              label: 'Categoría',
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<ProductCategory>(
+                  value: _category,
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(16),
+                  style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
+                  items: [
+                    for (final c in ProductCategory.values)
+                      DropdownMenuItem(value: c, child: Text(c.label)),
+                  ],
+                  onChanged: (c) => setState(() => _category = c ?? ProductCategory.other),
+                ),
+              ),
             ),
-            const SizedBox(height: 12),
-            TextFormField(
+            const SizedBox(height: 16),
+            AppTextField(
               controller: _price,
+              label: 'Precio',
+              hint: '0',
+              prefixText: r'$ ',
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Precio', prefixText: r'$ '),
               validator: (v) {
                 final value = double.tryParse((v ?? '').replaceAll(',', ''));
                 if (value == null || value < 0) return 'Valor inválido';

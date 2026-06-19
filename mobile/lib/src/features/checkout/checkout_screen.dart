@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/formatters.dart';
 import '../../core/whatsapp.dart';
+import '../../core/widgets/app_text_field.dart';
 import '../../core/widgets/common_widgets.dart';
 import '../../models/enums.dart';
 import '../../models/reservation.dart';
@@ -138,25 +139,31 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               else ...[
                 Text('Registrar pago final (opcional)',
                     style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _finalAmount,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    labelText: 'Valor',
-                    prefixText: r'$ ',
-                    helperText: r.balance > 0 ? 'Saldo pendiente: ${Formatters.money(r.balance)}' : null,
-                  ),
-                ),
                 const SizedBox(height: 12),
-                DropdownButtonFormField<PaymentMethod>(
-                  initialValue: _method,
-                  decoration: const InputDecoration(labelText: 'Método'),
-                  items: [
-                    for (final m in PaymentMethod.values)
-                      DropdownMenuItem(value: m, child: Text(m.label)),
-                  ],
-                  onChanged: (m) => setState(() => _method = m ?? PaymentMethod.cash),
+                AppTextField(
+                  controller: _finalAmount,
+                  label: 'Valor',
+                  hint: '0',
+                  prefixText: r'$ ',
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  helper: r.balance > 0 ? 'Saldo pendiente: ${Formatters.money(r.balance)}' : null,
+                ),
+                const SizedBox(height: 16),
+                AppFieldBox(
+                  label: 'Método',
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<PaymentMethod>(
+                      value: _method,
+                      isExpanded: true,
+                      borderRadius: BorderRadius.circular(16),
+                      style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
+                      items: [
+                        for (final m in PaymentMethod.values)
+                          DropdownMenuItem(value: m, child: Text(m.label)),
+                      ],
+                      onChanged: (m) => setState(() => _method = m ?? PaymentMethod.cash),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 FilledButton.icon(

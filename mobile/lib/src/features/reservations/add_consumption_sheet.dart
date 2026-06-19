@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/formatters.dart';
+import '../../core/widgets/app_text_field.dart';
 import '../../models/product.dart';
 import '../../providers.dart';
 
@@ -61,19 +62,25 @@ class _AddConsumptionSheetState extends ConsumerState<_AddConsumptionSheet> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  DropdownButtonFormField<Product>(
-                    initialValue: _product,
-                    isExpanded: true,
-                    decoration: const InputDecoration(labelText: 'Producto'),
-                    items: [
-                      for (final p in products)
-                        DropdownMenuItem(
-                          value: p,
-                          child: Text('${p.name} · ${Formatters.money(p.currentPrice)}',
-                              overflow: TextOverflow.ellipsis),
-                        ),
-                    ],
-                    onChanged: (p) => setState(() => _product = p),
+                  AppFieldBox(
+                    label: 'Producto',
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<Product>(
+                        value: _product,
+                        isExpanded: true,
+                        borderRadius: BorderRadius.circular(16),
+                        style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
+                        items: [
+                          for (final p in products)
+                            DropdownMenuItem(
+                              value: p,
+                              child: Text('${p.name} · ${Formatters.money(p.currentPrice)}',
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                        ],
+                        onChanged: (p) => setState(() => _product = p),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(

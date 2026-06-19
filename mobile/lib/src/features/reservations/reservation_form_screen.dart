@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/formatters.dart';
+import '../../core/widgets/app_text_field.dart';
 import '../../core/widgets/common_widgets.dart';
 import '../../models/availability.dart';
 import '../../models/dome.dart';
@@ -191,29 +192,34 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
               children: [
                 const _SectionLabel('Huésped'),
-                const _FieldLabel('Nombre'),
-                TextFormField(
+                AppTextField(
                   controller: _name,
+                  label: 'Nombre',
+                  required: true,
+                  hint: 'Nombre del huésped',
                   textCapitalization: TextCapitalization.words,
-                  decoration: _fieldDecoration(context, hint: 'Nombre del huésped'),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                 ),
-                const _FieldLabel('Teléfono / WhatsApp'),
-                TextFormField(
+                const SizedBox(height: 16),
+                AppTextField(
                   controller: _phone,
+                  label: 'Teléfono / WhatsApp',
+                  required: true,
+                  hint: 'Ej. +57 300 000 0000',
+                  prefixIcon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
-                  decoration: _fieldDecoration(context, hint: 'Ej. +57 300 000 0000', icon: Icons.phone_outlined),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                 ),
 
                 const _SectionLabel('Estadía'),
-                const _FieldLabel('Domo'),
-                _BoxField(
+                AppFieldBox(
+                  label: 'Domo',
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _domeId,
                       isExpanded: true,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
+                      style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
                       items: [
                         for (final d in domes)
                           DropdownMenuItem(value: d.id, child: Text('${d.name} · máx. ${d.maxCapacity}')),
@@ -225,50 +231,70 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _DateTile(label: 'Llegada', date: _checkIn, onTap: () => _pickDate(isCheckIn: true))),
+                    Expanded(child: _DateField(label: 'Llegada', date: _checkIn, onTap: () => _pickDate(isCheckIn: true))),
                     const SizedBox(width: 12),
-                    Expanded(child: _DateTile(label: 'Salida', date: _checkOut, onTap: () => _pickDate(isCheckIn: false))),
+                    Expanded(child: _DateField(label: 'Salida', date: _checkOut, onTap: () => _pickDate(isCheckIn: false))),
                   ],
                 ),
                 if (_checkIn != null && _checkOut != null && _checkOut!.isAfter(_checkIn!))
                   Padding(
-                    padding: const EdgeInsets.only(top: 8, left: 2),
+                    padding: const EdgeInsets.only(top: 8, left: 4),
                     child: Text('${Formatters.nights(_checkIn!, _checkOut!)} noche(s)',
                         style: TextStyle(color: Theme.of(context).colorScheme.outline)),
                   ),
                 const SizedBox(height: 12),
                 _AvailabilityBanner(checking: _checkingAvailability, availability: _availability),
-
-                const _FieldLabel('Huéspedes'),
-                _Stepper(
-                  value: _guests,
-                  onMinus: _guests > 1 ? () => setState(() => _guests--) : null,
-                  onPlus: () => setState(() => _guests++),
+                const SizedBox(height: 16),
+                AppFieldBox(
+                  label: 'Huéspedes',
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    children: [
+                      Icon(Icons.people_alt_outlined, size: 20, color: Theme.of(context).colorScheme.outline),
+                      const SizedBox(width: 10),
+                      const Expanded(child: Text('Número de huéspedes')),
+                      IconButton.filledTonal(
+                        onPressed: _guests > 1 ? () => setState(() => _guests--) : null,
+                        icon: const Icon(Icons.remove),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text('$_guests', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                      ),
+                      IconButton.filledTonal(
+                        onPressed: () => setState(() => _guests++),
+                        icon: const Icon(Icons.add),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const _SectionLabel('Pago'),
-                const _FieldLabel('Precio del alojamiento'),
-                TextFormField(
+                AppTextField(
                   controller: _price,
+                  label: 'Precio del alojamiento',
+                  hint: '0',
+                  prefixText: r'$ ',
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: _fieldDecoration(context, hint: '0', prefixText: r'$ '),
                   validator: (v) {
                     final value = double.tryParse((v ?? '').replaceAll(',', ''));
                     if (value == null || value < 0) return 'Ingresa un valor válido';
                     return null;
                   },
                 ),
-                const _FieldLabel('Notas (opcional)'),
-                TextFormField(
+                const SizedBox(height: 16),
+                AppTextField(
                   controller: _notes,
+                  label: 'Notas (opcional)',
+                  hint: 'Detalles, peticiones especiales…',
                   maxLines: 3,
-                  decoration: _fieldDecoration(context, hint: 'Detalles, peticiones especiales…'),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 28),
                 FilledButton(
                   onPressed: _saving ? null : _submit,
                   child: _saving
@@ -284,34 +310,13 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
   }
 }
 
-/// Decoración de campo: blanco con borde suave y foco verde (no el gris relleno).
-InputDecoration _fieldDecoration(BuildContext context, {String? hint, String? prefixText, IconData? icon}) {
-  final scheme = Theme.of(context).colorScheme;
-  OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: c, width: w),
-      );
-  return InputDecoration(
-    hintText: hint,
-    prefixText: prefixText,
-    prefixIcon: icon == null ? null : Icon(icon, size: 20),
-    filled: true,
-    fillColor: Theme.of(context).cardColor,
-    isDense: true,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-    border: border(scheme.outlineVariant),
-    enabledBorder: border(scheme.outlineVariant),
-    focusedBorder: border(scheme.primary, 1.6),
-  );
-}
-
 class _SectionLabel extends StatelessWidget {
   final String text;
   const _SectionLabel(this.text);
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 18, bottom: 4),
+        padding: const EdgeInsets.only(top: 20, bottom: 8),
         child: Text(text,
             style: TextStyle(
               fontSize: 13,
@@ -322,42 +327,11 @@ class _SectionLabel extends StatelessWidget {
       );
 }
 
-class _FieldLabel extends StatelessWidget {
-  final String text;
-  const _FieldLabel(this.text);
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 14, bottom: 7, left: 2),
-        child: Text(text, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
-      );
-}
-
-/// Contenedor con el mismo estilo que un campo (para dropdown / tiles).
-class _BoxField extends StatelessWidget {
-  final Widget child;
-  const _BoxField({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
-      child: child,
-    );
-  }
-}
-
-class _DateTile extends StatelessWidget {
+class _DateField extends StatelessWidget {
   final String label;
   final DateTime? date;
   final VoidCallback onTap;
-  const _DateTile({required this.label, required this.date, required this.onTap});
+  const _DateField({required this.label, required this.date, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -365,69 +339,39 @@ class _DateTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _FieldLabel(label),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: scheme.onSurface)),
+        ),
         InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 17),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: scheme.outlineVariant),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppThemeBorder.of(context)),
             ),
             child: Row(
               children: [
-                Icon(Icons.event_outlined, size: 19, color: scheme.primary),
-                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     date != null ? Formatters.date(date!) : 'Elegir',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
+                      fontSize: 16,
                       color: date != null ? null : scheme.outline,
                       fontWeight: date != null ? FontWeight.w500 : FontWeight.w400,
                     ),
                   ),
                 ),
+                Icon(Icons.calendar_month_rounded, size: 20, color: scheme.primary),
               ],
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _Stepper extends StatelessWidget {
-  final int value;
-  final VoidCallback? onMinus;
-  final VoidCallback onPlus;
-  const _Stepper({required this.value, required this.onMinus, required this.onPlus});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.people_alt_outlined, size: 20, color: scheme.outline),
-          const SizedBox(width: 10),
-          const Expanded(child: Text('Número de huéspedes')),
-          IconButton.filledTonal(onPressed: onMinus, icon: const Icon(Icons.remove)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text('$value', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          ),
-          IconButton.filledTonal(onPressed: onPlus, icon: const Icon(Icons.add)),
-        ],
-      ),
     );
   }
 }

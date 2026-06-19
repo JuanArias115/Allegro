@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/app_text_field.dart';
 import '../../models/enums.dart';
 
 typedef PaymentResult = ({double amount, PaymentMethod method, String? note});
@@ -59,30 +60,41 @@ class _AddPaymentSheetState extends State<_AddPaymentSheet> {
           children: [
             Text('Registrar abono', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
-            TextFormField(
+            AppTextField(
               controller: _amount,
+              label: 'Valor',
+              required: true,
+              hint: '0',
+              prefixText: r'$ ',
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Valor', prefixText: r'$ '),
               validator: (v) {
                 final value = double.tryParse((v ?? '').replaceAll(',', ''));
                 if (value == null || value <= 0) return 'Ingresa un valor mayor que cero';
                 return null;
               },
             ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<PaymentMethod>(
-              initialValue: _method,
-              decoration: const InputDecoration(labelText: 'Método'),
-              items: [
-                for (final m in PaymentMethod.values)
-                  DropdownMenuItem(value: m, child: Text(m.label)),
-              ],
-              onChanged: (m) => setState(() => _method = m ?? PaymentMethod.cash),
+            const SizedBox(height: 16),
+            AppFieldBox(
+              label: 'Método',
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<PaymentMethod>(
+                  value: _method,
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(16),
+                  style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
+                  items: [
+                    for (final m in PaymentMethod.values)
+                      DropdownMenuItem(value: m, child: Text(m.label)),
+                  ],
+                  onChanged: (m) => setState(() => _method = m ?? PaymentMethod.cash),
+                ),
+              ),
             ),
-            const SizedBox(height: 12),
-            TextFormField(
+            const SizedBox(height: 16),
+            AppTextField(
               controller: _note,
-              decoration: const InputDecoration(labelText: 'Nota (opcional)'),
+              label: 'Nota (opcional)',
+              hint: 'Ej. abono inicial',
             ),
             const SizedBox(height: 20),
             FilledButton(onPressed: _submit, child: const Text('Guardar abono')),
