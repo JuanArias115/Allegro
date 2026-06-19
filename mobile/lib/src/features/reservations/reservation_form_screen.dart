@@ -72,12 +72,16 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
 
   Future<void> _pickDate({required bool isCheckIn}) async {
     final now = DateTime.now();
-    final initial = isCheckIn ? (_checkIn ?? now) : (_checkOut ?? _checkIn?.add(const Duration(days: 1)) ?? now);
+    final initial = isCheckIn
+        ? (_checkIn ?? now)
+        : (_checkOut ?? _checkIn?.add(const Duration(days: 1)) ?? now.add(const Duration(days: 1)));
+    final first = isCheckIn ? DateTime(now.year - 1) : (_checkIn ?? now).add(const Duration(days: 1));
     final picked = await showDatePicker(
       context: context,
-      initialDate: initial,
-      firstDate: DateTime(now.year - 1),
+      initialDate: initial.isBefore(first) ? first : initial,
+      firstDate: first,
       lastDate: DateTime(now.year + 3),
+      helpText: isCheckIn ? 'Fecha de llegada' : 'Fecha de salida',
     );
     if (picked == null) return;
     setState(() {
@@ -112,7 +116,12 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_domeId == null || _checkIn == null || _checkOut == null) return;
+    if (_domeId == null || _checkIn == null || _checkOut == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecciona domo y fechas.')),
+      );
+      return;
+    }
     if (!_checkOut!.isAfter(_checkIn!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('La salida debe ser posterior a la llegada.')),
@@ -134,9 +143,8 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
     );
 
     try {
-      final result = _isEdit
-          ? await repo.update(widget.editId!, input)
-          : await repo.create(input);
+      final result =
+          _isEdit ? await repo.update(widget.editId!, input) : await repo.create(input);
       ref.invalidate(todayProvider);
       if (_isEdit) ref.invalidate(reservationDetailProvider(widget.editId!));
       if (mounted) context.go('/reservations/${result.id}');
@@ -152,7 +160,6 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
   Widget build(BuildContext context) {
     final domesAsync = ref.watch(activeDomesProvider);
 
-    // En modo edición, cargamos la reserva una vez para prellenar.
     if (_isEdit && !_loaded) {
       final detail = ref.watch(reservationDetailProvider(widget.editId!));
       return detail.when(
@@ -181,80 +188,86 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
           return Form(
             key: _formKey,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
               children: [
+                const _SectionLabel('Huésped'),
+                const _FieldLabel('Nombre'),
                 TextFormField(
                   controller: _name,
-                  decoration: const InputDecoration(labelText: 'Nombre del huésped'),
                   textCapitalization: TextCapitalization.words,
+                  decoration: _fieldDecoration(context, hint: 'Nombre del huésped'),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                 ),
-                const SizedBox(height: 12),
+                const _FieldLabel('Teléfono / WhatsApp'),
                 TextFormField(
                   controller: _phone,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Teléfono / WhatsApp'),
+                  decoration: _fieldDecoration(context, hint: 'Ej. +57 300 000 0000', icon: Icons.phone_outlined),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                 ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: _domeId,
-                  decoration: const InputDecoration(labelText: 'Domo'),
-                  items: [
-                    for (final d in domes)
-                      DropdownMenuItem(value: d.id, child: Text('${d.name} (máx. ${d.maxCapacity})')),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _domeId = v);
-                    _checkAvailability();
-                  },
+
+                const _SectionLabel('Estadía'),
+                const _FieldLabel('Domo'),
+                _BoxField(
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _domeId,
+                      isExpanded: true,
+                      borderRadius: BorderRadius.circular(12),
+                      items: [
+                        for (final d in domes)
+                          DropdownMenuItem(value: d.id, child: Text('${d.name} · máx. ${d.maxCapacity}')),
+                      ],
+                      onChanged: (v) {
+                        setState(() => _domeId = v);
+                        _checkAvailability();
+                      },
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _DateField(label: 'Llegada', date: _checkIn, onTap: () => _pickDate(isCheckIn: true))),
+                    Expanded(child: _DateTile(label: 'Llegada', date: _checkIn, onTap: () => _pickDate(isCheckIn: true))),
                     const SizedBox(width: 12),
-                    Expanded(child: _DateField(label: 'Salida', date: _checkOut, onTap: () => _pickDate(isCheckIn: false))),
+                    Expanded(child: _DateTile(label: 'Salida', date: _checkOut, onTap: () => _pickDate(isCheckIn: false))),
                   ],
                 ),
+                if (_checkIn != null && _checkOut != null && _checkOut!.isAfter(_checkIn!))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 2),
+                    child: Text('${Formatters.nights(_checkIn!, _checkOut!)} noche(s)',
+                        style: TextStyle(color: Theme.of(context).colorScheme.outline)),
+                  ),
                 const SizedBox(height: 12),
                 _AvailabilityBanner(checking: _checkingAvailability, availability: _availability),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Text('Huéspedes'),
-                    const Spacer(),
-                    IconButton.filledTonal(
-                      onPressed: _guests > 1 ? () => setState(() => _guests--) : null,
-                      icon: const Icon(Icons.remove),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('$_guests', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                    ),
-                    IconButton.filledTonal(
-                      onPressed: () => setState(() => _guests++),
-                      icon: const Icon(Icons.add),
-                    ),
-                  ],
+
+                const _FieldLabel('Huéspedes'),
+                _Stepper(
+                  value: _guests,
+                  onMinus: _guests > 1 ? () => setState(() => _guests--) : null,
+                  onPlus: () => setState(() => _guests++),
                 ),
-                const SizedBox(height: 12),
+
+                const _SectionLabel('Pago'),
+                const _FieldLabel('Precio del alojamiento'),
                 TextFormField(
                   controller: _price,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Precio del alojamiento', prefixText: r'$ '),
+                  decoration: _fieldDecoration(context, hint: '0', prefixText: r'$ '),
                   validator: (v) {
                     final value = double.tryParse((v ?? '').replaceAll(',', ''));
                     if (value == null || value < 0) return 'Ingresa un valor válido';
                     return null;
                   },
                 ),
-                const SizedBox(height: 12),
+                const _FieldLabel('Notas (opcional)'),
                 TextFormField(
                   controller: _notes,
                   maxLines: 3,
-                  decoration: const InputDecoration(labelText: 'Notas (opcional)'),
+                  decoration: _fieldDecoration(context, hint: 'Detalles, peticiones especiales…'),
                 ),
+
                 const SizedBox(height: 24),
                 FilledButton(
                   onPressed: _saving ? null : _submit,
@@ -271,21 +284,149 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
   }
 }
 
-class _DateField extends StatelessWidget {
-  final String label;
-  final DateTime? date;
-  final VoidCallback onTap;
-  const _DateField({required this.label, required this.date, required this.onTap});
+/// Decoración de campo: blanco con borde suave y foco verde (no el gris relleno).
+InputDecoration _fieldDecoration(BuildContext context, {String? hint, String? prefixText, IconData? icon}) {
+  final scheme = Theme.of(context).colorScheme;
+  OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: c, width: w),
+      );
+  return InputDecoration(
+    hintText: hint,
+    prefixText: prefixText,
+    prefixIcon: icon == null ? null : Icon(icon, size: 20),
+    filled: true,
+    fillColor: Theme.of(context).cardColor,
+    isDense: true,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    border: border(scheme.outlineVariant),
+    enabledBorder: border(scheme.outlineVariant),
+    focusedBorder: border(scheme.primary, 1.6),
+  );
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: 18, bottom: 4),
+        child: Text(text,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+              color: Theme.of(context).colorScheme.primary,
+            )),
+      );
+}
+
+class _FieldLabel extends StatelessWidget {
+  final String text;
+  const _FieldLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: 14, bottom: 7, left: 2),
+        child: Text(text, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+      );
+}
+
+/// Contenedor con el mismo estilo que un campo (para dropdown / tiles).
+class _BoxField extends StatelessWidget {
+  final Widget child;
+  const _BoxField({required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: InputDecorator(
-        decoration: InputDecoration(labelText: label),
-        child: Text(date != null ? Formatters.date(date!) : 'Elegir',
-            style: TextStyle(color: date != null ? null : Theme.of(context).colorScheme.outline)),
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _DateTile extends StatelessWidget {
+  final String label;
+  final DateTime? date;
+  final VoidCallback onTap;
+  const _DateTile({required this.label, required this.date, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _FieldLabel(label),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: scheme.outlineVariant),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.event_outlined, size: 19, color: scheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    date != null ? Formatters.date(date!) : 'Elegir',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: date != null ? null : scheme.outline,
+                      fontWeight: date != null ? FontWeight.w500 : FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Stepper extends StatelessWidget {
+  final int value;
+  final VoidCallback? onMinus;
+  final VoidCallback onPlus;
+  const _Stepper({required this.value, required this.onMinus, required this.onPlus});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.people_alt_outlined, size: 20, color: scheme.outline),
+          const SizedBox(width: 10),
+          const Expanded(child: Text('Número de huéspedes')),
+          IconButton.filledTonal(onPressed: onMinus, icon: const Icon(Icons.remove)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Text('$value', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          ),
+          IconButton.filledTonal(onPressed: onPlus, icon: const Icon(Icons.add)),
+        ],
       ),
     );
   }
@@ -300,10 +441,10 @@ class _AvailabilityBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     if (checking) {
-      return const Row(children: [
-        SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
-        SizedBox(width: 8),
-        Text('Verificando disponibilidad…'),
+      return Row(children: [
+        const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+        const SizedBox(width: 8),
+        Text('Verificando disponibilidad…', style: TextStyle(color: scheme.outline)),
       ]);
     }
     if (availability == null) return const SizedBox.shrink();
@@ -323,7 +464,7 @@ class _AvailabilityBanner extends StatelessWidget {
             child: Text(
               ok
                   ? 'Disponible en esas fechas.'
-                  : 'Cruce con otra reserva: ${availability!.conflicts.map((c) => c.guestName).join(', ')}',
+                  : 'Cruce con: ${availability!.conflicts.map((c) => c.guestName).join(', ')}',
               style: TextStyle(color: ok ? scheme.primary : scheme.error),
             ),
           ),
