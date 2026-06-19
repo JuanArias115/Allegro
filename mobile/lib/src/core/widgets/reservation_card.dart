@@ -38,16 +38,27 @@ class ReservationCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 4,
                 children: [
-                  Icon(Icons.cabin_rounded, size: 16, color: scheme.outline),
-                  const SizedBox(width: 4),
-                  Text(r.domeName, style: TextStyle(color: scheme.outline)),
-                  const SizedBox(width: 12),
-                  Icon(Icons.calendar_today_rounded, size: 14, color: scheme.outline),
-                  const SizedBox(width: 4),
-                  Text(Formatters.dateRange(r.checkIn, r.checkOut),
-                      style: TextStyle(color: scheme.outline)),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.cabin_rounded, size: 16, color: scheme.outline),
+                      const SizedBox(width: 4),
+                      Text(r.domeName, style: TextStyle(color: scheme.outline)),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.calendar_today_rounded, size: 14, color: scheme.outline),
+                      const SizedBox(width: 4),
+                      Text(Formatters.dateRange(r.checkIn, r.checkOut),
+                          style: TextStyle(color: scheme.outline)),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 10),

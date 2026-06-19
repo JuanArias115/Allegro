@@ -17,6 +17,17 @@ class AllegroApp extends ConsumerWidget {
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
       routerConfig: router,
+      builder: (context, child) {
+        // Respeta la fuente del sistema pero la acota: con "letra grande" la app
+        // crece un poco sin deformar ni desbordar los diseños.
+        final mq = MediaQuery.of(context);
+        return MediaQuery(
+          data: mq.copyWith(
+            textScaler: mq.textScaler.clamp(minScaleFactor: 1.0, maxScaleFactor: 1.3),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }
