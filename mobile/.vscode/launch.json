@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Allegro (Firebase)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=AUTH_MODE=firebase",
+        "--dart-define=API_BASE_URL=http://10.0.2.2:8080"
+      ]
+    },
+    {
+      "name": "Allegro (Local / dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=AUTH_MODE=local",
+        "--dart-define=API_BASE_URL=http://10.0.2.2:8080"
+      ]
+    }
+  ]
+}
