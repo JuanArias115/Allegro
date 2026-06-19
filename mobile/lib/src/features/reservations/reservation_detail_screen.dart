@@ -8,6 +8,7 @@ import '../../core/widgets/common_widgets.dart';
 import '../../models/enums.dart';
 import '../../models/reservation.dart';
 import '../../providers.dart';
+import '../whatsapp/whatsapp_preview_sheet.dart';
 import 'add_consumption_sheet.dart';
 import 'add_payment_sheet.dart';
 
@@ -299,7 +300,7 @@ class _Menu extends ConsumerWidget {
         }
         if (value.startsWith('wa:')) {
           final template = WhatsAppTemplate.values.firstWhere((t) => t.name == value.substring(3));
-          await WhatsAppMessages.share(WhatsAppMessages.build(template, r));
+          if (context.mounted) await showWhatsAppPreview(context, r, initial: template);
         }
       },
       itemBuilder: (context) => [

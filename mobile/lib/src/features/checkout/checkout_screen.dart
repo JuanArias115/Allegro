@@ -8,6 +8,7 @@ import '../../core/widgets/common_widgets.dart';
 import '../../models/enums.dart';
 import '../../models/reservation.dart';
 import '../../providers.dart';
+import '../whatsapp/whatsapp_preview_sheet.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   final String id;
@@ -117,8 +118,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               OutlinedButton.icon(
                 icon: const Icon(Icons.share),
                 label: const Text('Compartir resumen por WhatsApp'),
-                onPressed: () => WhatsAppMessages.share(
-                    WhatsAppMessages.build(WhatsAppTemplate.accountSummary, r)),
+                onPressed: () =>
+                    showWhatsAppPreview(context, r, initial: WhatsAppTemplate.accountSummary),
               ),
               const SizedBox(height: 16),
               if (alreadyClosed)
