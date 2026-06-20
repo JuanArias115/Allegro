@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/widgets/app_text_field.dart';
+import '../../core/widgets/buttons.dart';
+import '../../core/widgets/cards.dart';
 import '../../models/enums.dart';
 import '../../models/product.dart';
 import '../../providers.dart';
@@ -97,21 +99,14 @@ class _ProductFormSheetState extends ConsumerState<_ProductFormSheet> {
               validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
             ),
             const SizedBox(height: 16),
-            AppFieldBox(
+            AppSelectField<ProductCategory>(
               label: 'Categoría',
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<ProductCategory>(
-                  value: _category,
-                  isExpanded: true,
-                  borderRadius: BorderRadius.circular(16),
-                  style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
-                  items: [
-                    for (final c in ProductCategory.values)
-                      DropdownMenuItem(value: c, child: Text(c.label)),
-                  ],
-                  onChanged: (c) => setState(() => _category = c ?? ProductCategory.other),
-                ),
-              ),
+              value: _category,
+              options: [
+                for (final c in ProductCategory.values)
+                  SelectOption(c, c.label, icon: categoryIcon(c), color: categoryColor(c)),
+              ],
+              onChanged: (c) => setState(() => _category = c),
             ),
             const SizedBox(height: 16),
             AppTextField(
@@ -129,16 +124,16 @@ class _ProductFormSheetState extends ConsumerState<_ProductFormSheet> {
             const SizedBox(height: 4),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Activo'),
+              title: const Text('Activo', style: TextStyle(fontWeight: FontWeight.w600)),
               value: _active,
               onChanged: (v) => setState(() => _active = v),
             ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: _saving ? null : _submit,
-              child: _saving
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Guardar'),
+            const SizedBox(height: 16),
+            PrimaryButton(
+              label: 'Guardar',
+              icon: Icons.check_rounded,
+              loading: _saving,
+              onPressed: _submit,
             ),
           ],
         ),

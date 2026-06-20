@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/widgets/app_text_field.dart';
+import '../../core/widgets/buttons.dart';
 import '../../models/enums.dart';
 
 typedef PaymentResult = ({double amount, PaymentMethod method, String? note});
@@ -74,21 +75,16 @@ class _AddPaymentSheetState extends State<_AddPaymentSheet> {
               },
             ),
             const SizedBox(height: 16),
-            AppFieldBox(
+            AppSelectField<PaymentMethod>(
               label: 'Método',
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<PaymentMethod>(
-                  value: _method,
-                  isExpanded: true,
-                  borderRadius: BorderRadius.circular(16),
-                  style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
-                  items: [
-                    for (final m in PaymentMethod.values)
-                      DropdownMenuItem(value: m, child: Text(m.label)),
-                  ],
-                  onChanged: (m) => setState(() => _method = m ?? PaymentMethod.cash),
-                ),
-              ),
+              icon: Icons.account_balance_wallet_rounded,
+              value: _method,
+              options: const [
+                SelectOption(PaymentMethod.cash, 'Efectivo', icon: Icons.payments_rounded),
+                SelectOption(PaymentMethod.transfer, 'Transferencia', icon: Icons.swap_horiz_rounded),
+                SelectOption(PaymentMethod.other, 'Otro', icon: Icons.more_horiz_rounded),
+              ],
+              onChanged: (m) => setState(() => _method = m),
             ),
             const SizedBox(height: 16),
             AppTextField(
@@ -96,8 +92,8 @@ class _AddPaymentSheetState extends State<_AddPaymentSheet> {
               label: 'Nota (opcional)',
               hint: 'Ej. abono inicial',
             ),
-            const SizedBox(height: 20),
-            FilledButton(onPressed: _submit, child: const Text('Guardar abono')),
+            const SizedBox(height: 24),
+            PrimaryButton(label: 'Guardar abono', icon: Icons.check_rounded, onPressed: _submit),
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/formatters.dart';
 import '../../core/widgets/app_text_field.dart';
+import '../../core/widgets/buttons.dart';
 import '../../models/product.dart';
 import '../../providers.dart';
 
@@ -59,61 +60,33 @@ class _AddConsumptionSheetState extends ConsumerState<_AddConsumptionSheet> {
                 );
               }
               _product ??= products.first;
+              final subtotal = _product!.currentPrice * _quantity;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AppFieldBox(
+                  AppSelectField<Product>(
                     label: 'Producto',
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<Product>(
-                        value: _product,
-                        isExpanded: true,
-                        borderRadius: BorderRadius.circular(16),
-                        style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w500),
-                        items: [
-                          for (final p in products)
-                            DropdownMenuItem(
-                              value: p,
-                              child: Text('${p.name} · ${Formatters.money(p.currentPrice)}',
-                                  overflow: TextOverflow.ellipsis),
-                            ),
-                        ],
-                        onChanged: (p) => setState(() => _product = p),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Text('Cantidad'),
-                      const Spacer(),
-                      IconButton.filledTonal(
-                        onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null,
-                        icon: const Icon(Icons.remove),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text('$_quantity',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                      ),
-                      IconButton.filledTonal(
-                        onPressed: () => setState(() => _quantity++),
-                        icon: const Icon(Icons.add),
-                      ),
+                    icon: Icons.local_cafe_rounded,
+                    value: _product!,
+                    options: [
+                      for (final p in products)
+                        SelectOption(p, '${p.name} · ${Formatters.money(p.currentPrice)}'),
                     ],
+                    onChanged: (p) => setState(() => _product = p),
                   ),
-                  const SizedBox(height: 8),
-                  if (_product != null)
-                    Text('Subtotal: ${Formatters.money(_product!.currentPrice * _quantity)}',
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: _product == null
-                        ? null
-                        : () => Navigator.pop(
-                            context, (productId: _product!.id, quantity: _quantity)),
-                    child: const Text('Agregar consumo'),
+                  StepperField(
+                    label: 'Cantidad',
+                    caption: 'Subtotal ${Formatters.money(subtotal)}',
+                    value: _quantity,
+                    onMinus: _quantity > 1 ? () => setState(() => _quantity--) : null,
+                    onPlus: () => setState(() => _quantity++),
+                  ),
+                  const SizedBox(height: 24),
+                  PrimaryButton(
+                    label: 'Agregar consumo',
+                    icon: Icons.add_rounded,
+                    onPressed: () => Navigator.pop(context, (productId: _product!.id, quantity: _quantity)),
                   ),
                 ],
               );
