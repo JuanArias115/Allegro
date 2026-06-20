@@ -245,13 +245,10 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
                         onChanged: (_) => _markDirty(),
                         validator: (v) => (v == null || v.trim().isEmpty) ? 'Ingresa el nombre' : null,
                       ),
-                      AppTextField(
+                      PhoneField(
                         controller: _phone,
                         label: 'Teléfono / WhatsApp',
                         required: true,
-                        hint: 'Ej. +57 300 000 0000',
-                        icon: Icons.phone_rounded,
-                        keyboardType: TextInputType.phone,
                         onChanged: (_) => _markDirty(),
                         validator: (v) => (v == null || v.trim().isEmpty) ? 'Ingresa un teléfono' : null,
                       ),
