@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.AddScoped<IReservationService, ReservationService>();
         services.AddScoped<IDomeBlockService, DomeBlockService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IAdminUserService, AdminUserService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateReservationValidator>();
 

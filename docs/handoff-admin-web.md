@@ -19,8 +19,8 @@ Flutter sigue siendo la herramienta operativa móvil. La web es administración/
 ## Plan por bloques (commits)
 
 1. ✅ **Backend seguridad + roles + auditoría** (commit `3e69469`).
-2. ✅ **DomeBlock** (bloqueo de fechas) — en progreso/hecho (ver estado abajo).
-3. ⬜ **Usuarios Firebase** (Firebase Admin SDK, IFirebaseUserManagementService, endpoints /api/admin/users/*, bootstrap CLI).
+2. ✅ **DomeBlock** (bloqueo de fechas) (commit `dee96f8`).
+3. ✅ **Usuarios Firebase** (Firebase Admin SDK, abstracción, endpoints, bootstrap CLI) — ver estado abajo.
 4. ⬜ **Reportes** (/api/admin/reports/* + CSV).
 5. ⬜ **Angular base** (proyecto admin-web, tema, auth Firebase, guards, interceptor, shell).
 6. ⬜ **Módulos admin** (dashboard, calendario, reservas, domos, productos+categorías, usuarios, reportes, configuración).
@@ -55,9 +55,22 @@ Flutter sigue siendo la herramienta operativa móvil. La web es administración/
 - `IClock` (SystemClock) usa `BUSINESS_TIMEZONE` default `America/Bogota`. Montos `decimal`. Fechas reserva `DateOnly` (date); timestamps UTC.
 - Servicios existentes a REUTILIZAR: `ReservationService` (completo), `DomeService` (GetAll/GetById/Update), `ProductService` (CRUD+activar), `ProductCategoryService` (solo GetActive — falta escritura admin para la web).
 
+### Bloque 3 — Usuarios Firebase
+- Paquete `FirebaseAdmin` 3.1.0 en Allegro.Infrastructure.csproj.
+- Abstracción `IFirebaseUserManagementService` (Application/Abstractions) + DTOs `UserDtos.cs` (AdminUserDto, UserPageDto, CreateUserDto, CreateUserResultDto, UpdateUserDto, ChangeUserStatusDto, ActivationLinkDto).
+- Impl real `Infrastructure/Firebase/FirebaseUserManagementService.cs` (List con búsqueda+paginación en memoria, cap 1000; mapea UserRecord→DTO; sanea errores del SDK como DomainException; `GeneratePasswordResetLinkAsync(email)` SIN ct — el SDK no tiene ese overload).
+- Stub `UnavailableFirebaseUserManagementService` para AUTH_MODE!=firebase (List vacío, escrituras lanzan DomainException claro).
+- `FirebaseAppInitializer.EnsureInitialized` (ADC / GOOGLE_APPLICATION_CREDENTIALS). DI en Infrastructure elige impl según AUTH_MODE.
+- `AdminUserService` (Application) con reglas: validar rol, rechazar email duplicado, **proteger último admin activo** (no degradar ni bloquear), auditar todo, nunca auditar el enlace. `Roles` interno (admin/operator).
+- `AdminUsersController` (`/api/admin/users`, `[Authorize(Policy=Admin)]`, `[EnableRateLimiting("admin-sensitive")]`): GET list (query/pageToken/pageSize), GET {uid}, POST, PATCH {uid} (name/role), POST {uid}/activation-link, POST {uid}/revoke-sessions, PATCH {uid}/status.
+- CLI `bootstrap-admin` en `Allegro.Api/Bootstrap/BootstrapAdminCommand.cs`, conectado en Program antes de migraciones/Run. Uso: `dotnet run --project src/Allegro.Api -- bootstrap-admin --email x@y.com` (o `--uid`). Idempotente, requiere AUTH_MODE=firebase + creds, solo imprime UID enmascarado.
+- Tests `AdminUserTests.cs` con fakes en `tests/.../Fakes/` (FakeFirebaseUserManagementService, FakeAuditLogService, FakeCurrentUser). NO tocan Firebase real.
+
 ## Pendiente inmediato (donde retomar)
-- Bloque 3 Usuarios Firebase: agregar paquete `FirebaseAdmin` (NuGet) a Allegro.Infrastructure; `IFirebaseUserManagementService` (abstracción en Application), impl en Infrastructure; DTOs propios; endpoints admin con `[Authorize(Policy=Admin)]` + `[EnableRateLimiting("admin-sensitive")]`; reglas no-bloquear/degradar último admin; auditar con IAuditLogService; CLI `bootstrap-admin` (interceptar args en Program antes de app.Run, requiere credenciales Firebase, idempotente). Credenciales por ADC / `GOOGLE_APPLICATION_CREDENTIALS` (documentar, sin valores reales).
-- Falta endpoints admin de **categorías** (POST/PATCH crear/editar/reordenar/activar) — extiende ProductCategoryService sin romper GET actual.
+- **Bloque 4 Reportes**: servicio de reportes (Application) + endpoints `/api/admin/reports/summary|occupancy|payments|products|export.csv` (`[Authorize(Policy=Admin)]`). Cálculos en backend con `decimal`, fechas con `IClock`/America/Bogota, rango inicio-inclusivo/fin-exclusivo. Ocupación: noches ocupadas por domo sin doble conteo de meses; excluir canceladas de ocupación e ingreso esperado; reflejar pagos reales aunque la reserva se cancelara después. Separar Valor reservado / Dinero recibido / Saldo pendiente. CSV export. Tests: sin datos, con canceladas, reservas que cruzan meses, pagos parciales, productos vendidos, ocupación, CSV.
+- Endpoints admin de **categorías** (POST/PATCH crear/editar/reordenar/activar) — extiende ProductCategoryService sin romper el GET actual (usado por Flutter). Necesario para el módulo Productos+Categorías de la web.
+- Faltan pruebas de **autorización** a nivel Api (admin/operator/sin claims) — requieren WebApplicationFactory (Program es partial public). Pendiente para fase de pruebas.
+- **Bloques 5-7 (Angular)**: proyecto `admin-web/` completo. Es el grueso restante; planear sesión dedicada. Ver sección TECNOLOGÍA/DISEÑO del prompt original.
 
 ## Restricciones (recordatorio)
 No TRA. No secretos en git. No cambiar credenciales. No desplegar. No push a main. No romper Flutter. Documentar cambios de contrato. No datos demo en prod. Nada contable avanzado. No borrar históricos.

@@ -83,6 +83,12 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+// Comando CLI (no levanta el servidor): asignación del primer administrador.
+if (args.Length > 0 && args[0] == Allegro.Api.Bootstrap.BootstrapAdminCommand.Name)
+{
+    return await Allegro.Api.Bootstrap.BootstrapAdminCommand.RunAsync(app.Services, args);
+}
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
