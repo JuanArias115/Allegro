@@ -17,6 +17,7 @@ public interface IAppDbContext
     DbSet<Product> Products { get; }
     DbSet<ProductCategory> ProductCategories { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<DomeBlock> DomeBlocks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default);

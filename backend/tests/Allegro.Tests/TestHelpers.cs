@@ -63,6 +63,7 @@ public sealed class TestHarness : IDisposable
     public ReservationService Reservations() => new(_db, Clock);
     public ProductService Products() => new(_db);
     public ProductCategoryService Categories() => new(_db);
+    public DomeBlockService Blocks() => new(_db, Clock);
 
     public Product AddProduct(string name, decimal price, Guid? categoryId = null)
     {

@@ -13,6 +13,7 @@ public static class DependencyInjection
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IProductCategoryService, ProductCategoryService>();
         services.AddScoped<IReservationService, ReservationService>();
+        services.AddScoped<IDomeBlockService, DomeBlockService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateReservationValidator>();

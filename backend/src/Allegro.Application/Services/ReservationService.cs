@@ -91,6 +91,7 @@ public class ReservationService : IReservationService
         EnsureValidDates(dto.CheckIn, dto.CheckOut);
         EnsureCapacity(dome, dto.GuestCount);
         await EnsureNoOverlapAsync(dto.DomeId, dto.CheckIn, dto.CheckOut, excludeReservationId: null, ct);
+        await EnsureNoBlockOverlapAsync(dto.DomeId, dto.CheckIn, dto.CheckOut, ct);
 
         var now = _clock.UtcNow;
         var reservation = new Reservation
@@ -128,6 +129,7 @@ public class ReservationService : IReservationService
         EnsureValidDates(dto.CheckIn, dto.CheckOut);
         EnsureCapacity(dome, dto.GuestCount);
         await EnsureNoOverlapAsync(dto.DomeId, dto.CheckIn, dto.CheckOut, excludeReservationId: id, ct);
+        await EnsureNoBlockOverlapAsync(dto.DomeId, dto.CheckIn, dto.CheckOut, ct);
 
         reservation.GuestName = dto.GuestName.Trim();
         reservation.Phone = dto.Phone.Trim();
@@ -268,10 +270,13 @@ public class ReservationService : IReservationService
     {
         EnsureValidDates(checkIn, checkOut);
         var conflicts = await FindOverlapsAsync(domeId, checkIn, checkOut, excludeReservationId, ct);
+        var blocks = await FindBlockOverlapsAsync(domeId, checkIn, checkOut, ct);
         return new AvailabilityDto(
             domeId, checkIn, checkOut,
-            IsAvailable: conflicts.Count == 0,
-            Conflicts: conflicts.Select(r => r.ToSummary()).ToList());
+            IsAvailable: conflicts.Count == 0 && blocks.Count == 0,
+            Conflicts: conflicts.Select(r => r.ToSummary()).ToList(),
+            BlockedRanges: blocks.Select(b => new DomeBlockDto(
+                b.Id, b.DomeId, b.Dome?.Name ?? "", b.StartDate, b.EndDate, b.Reason, b.CreatedAt)).ToList());
     }
 
     public async Task<TodayDto> GetTodayAsync(CancellationToken ct = default)
@@ -337,6 +342,22 @@ public class ReservationService : IReservationService
         var overlaps = await FindOverlapsAsync(domeId, checkIn, checkOut, excludeReservationId, ct);
         if (overlaps.Count > 0)
             throw new DomainException("El domo ya tiene una reserva activa que se cruza con esas fechas.");
+    }
+
+    private async Task<List<DomeBlock>> FindBlockOverlapsAsync(Guid domeId, DateOnly checkIn, DateOnly checkOut, CancellationToken ct)
+    {
+        return await _db.DomeBlocks.AsNoTracking()
+            .Include(b => b.Dome)
+            .Where(b => b.DomeId == domeId && b.StartDate < checkOut && checkIn < b.EndDate)
+            .ToListAsync(ct);
+    }
+
+    private async Task EnsureNoBlockOverlapAsync(Guid domeId, DateOnly checkIn, DateOnly checkOut, CancellationToken ct)
+    {
+        var block = await _db.DomeBlocks.AsNoTracking()
+            .FirstOrDefaultAsync(b => b.DomeId == domeId && b.StartDate < checkOut && checkIn < b.EndDate, ct);
+        if (block is not null)
+            throw new DomainException($"Esas fechas están bloqueadas ({block.Reason}).");
     }
 
     private static void EnsureValidDates(DateOnly checkIn, DateOnly checkOut)
