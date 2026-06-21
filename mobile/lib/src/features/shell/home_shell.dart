@@ -9,10 +9,26 @@ class HomeShell extends StatelessWidget {
 
   static const _routes = ['/today', '/reservations', '/calendar', '/more'];
   static const _items = [
-    AppNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Inicio'),
-    AppNavItem(icon: Icons.event_note_outlined, activeIcon: Icons.event_note_rounded, label: 'Reservas'),
-    AppNavItem(icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month_rounded, label: 'Calendario'),
-    AppNavItem(icon: Icons.grid_view_outlined, activeIcon: Icons.grid_view_rounded, label: 'Más'),
+    AppNavItem(
+      icon: Icons.home_outlined,
+      activeIcon: Icons.home_rounded,
+      label: 'Inicio',
+    ),
+    AppNavItem(
+      icon: Icons.event_note_outlined,
+      activeIcon: Icons.event_note_rounded,
+      label: 'Reservas',
+    ),
+    AppNavItem(
+      icon: Icons.calendar_month_outlined,
+      activeIcon: Icons.calendar_month_rounded,
+      label: 'Calendario',
+    ),
+    AppNavItem(
+      icon: Icons.grid_view_outlined,
+      activeIcon: Icons.grid_view_rounded,
+      label: 'Más',
+    ),
   ];
 
   int _indexFor(String location) {
@@ -34,7 +50,10 @@ class HomeShell extends StatelessWidget {
         child: child,
         builder: (context, v, child) => Opacity(
           opacity: v.clamp(0, 1),
-          child: Transform.translate(offset: Offset(0, (1 - v) * 8), child: child),
+          child: Transform.translate(
+            offset: Offset(0, (1 - v) * 8),
+            child: child,
+          ),
         ),
       ),
       bottomNavigationBar: AppBottomNavigation(

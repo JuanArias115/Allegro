@@ -11,6 +11,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IDomeService, DomeService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IProductCategoryService, ProductCategoryService>();
         services.AddScoped<IReservationService, ReservationService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateReservationValidator>();

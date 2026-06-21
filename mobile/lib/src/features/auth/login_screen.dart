@@ -39,7 +39,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       await ref.read(authServiceProvider).signIn(_email.text, _password.text);
     } catch (e) {
-      setState(() => _error = 'No pudimos iniciar sesión. Revisa tu correo y contraseña.');
+      setState(
+        () => _error =
+            'No pudimos iniciar sesión. Revisa tu correo y contraseña.',
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -52,7 +55,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x8, AppSpacing.x5, AppSpacing.x6),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.x5,
+              AppSpacing.x8,
+              AppSpacing.x5,
+              AppSpacing.x6,
+            ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
               child: Form(
@@ -73,10 +81,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.x5),
-                    Text('Bienvenido a Allegro', textAlign: TextAlign.center, style: t.headlineMedium),
+                    Text(
+                      'Bienvenido a Allegro',
+                      textAlign: TextAlign.center,
+                      style: t.headlineMedium,
+                    ),
                     const SizedBox(height: 6),
-                    Text('Administra tu glamping en un solo lugar',
-                        textAlign: TextAlign.center, style: t.bodyMedium),
+                    Text(
+                      'Administra tu glamping en un solo lugar',
+                      textAlign: TextAlign.center,
+                      style: t.bodyMedium,
+                    ),
                     const SizedBox(height: AppSpacing.x7),
                     AppTextField(
                       controller: _email,
@@ -84,7 +99,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       hint: 'tucorreo@ejemplo.com',
                       icon: Icons.mail_outline_rounded,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (v) => (v == null || !v.contains('@')) ? 'Ingresa un correo válido' : null,
+                      validator: (v) => (v == null || !v.contains('@'))
+                          ? 'Ingresa un correo válido'
+                          : null,
                     ),
                     const SizedBox(height: AppSpacing.x4),
                     AppTextField(
@@ -94,7 +111,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       icon: Icons.lock_outline_rounded,
                       obscure: true,
                       onSubmitted: (_) => _submit(),
-                      validator: (v) => (v == null || v.length < 6) ? 'Mínimo 6 caracteres' : null,
+                      validator: (v) => (v == null || v.length < 6)
+                          ? 'Mínimo 6 caracteres'
+                          : null,
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: AppSpacing.x4),
@@ -106,9 +125,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_rounded, color: AppColors.coral, size: 20),
+                            const Icon(
+                              Icons.error_rounded,
+                              color: AppColors.coral,
+                              size: 20,
+                            ),
                             const SizedBox(width: 10),
-                            Expanded(child: Text(_error!, style: TextStyle(color: AppColors.coral, fontWeight: FontWeight.w600))),
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: TextStyle(
+                                  color: AppColors.coral,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

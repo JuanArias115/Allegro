@@ -59,7 +59,10 @@ class _AddPaymentSheetState extends State<_AddPaymentSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Registrar abono', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'Registrar abono',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 16),
             AppTextField(
               controller: _amount,
@@ -67,10 +70,14 @@ class _AddPaymentSheetState extends State<_AddPaymentSheet> {
               required: true,
               hint: '0',
               prefixText: r'$ ',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               validator: (v) {
                 final value = double.tryParse((v ?? '').replaceAll(',', ''));
-                if (value == null || value <= 0) return 'Ingresa un valor mayor que cero';
+                if (value == null || value <= 0) {
+                  return 'Ingresa un valor mayor que cero';
+                }
                 return null;
               },
             ),
@@ -80,9 +87,21 @@ class _AddPaymentSheetState extends State<_AddPaymentSheet> {
               icon: Icons.account_balance_wallet_rounded,
               value: _method,
               options: const [
-                SelectOption(PaymentMethod.cash, 'Efectivo', icon: Icons.payments_rounded),
-                SelectOption(PaymentMethod.transfer, 'Transferencia', icon: Icons.swap_horiz_rounded),
-                SelectOption(PaymentMethod.other, 'Otro', icon: Icons.more_horiz_rounded),
+                SelectOption(
+                  PaymentMethod.cash,
+                  'Efectivo',
+                  icon: Icons.payments_rounded,
+                ),
+                SelectOption(
+                  PaymentMethod.transfer,
+                  'Transferencia',
+                  icon: Icons.swap_horiz_rounded,
+                ),
+                SelectOption(
+                  PaymentMethod.other,
+                  'Otro',
+                  icon: Icons.more_horiz_rounded,
+                ),
               ],
               onChanged: (m) => setState(() => _method = m),
             ),
@@ -93,7 +112,11 @@ class _AddPaymentSheetState extends State<_AddPaymentSheet> {
               hint: 'Ej. abono inicial',
             ),
             const SizedBox(height: 24),
-            PrimaryButton(label: 'Guardar abono', icon: Icons.check_rounded, onPressed: _submit),
+            PrimaryButton(
+              label: 'Guardar abono',
+              icon: Icons.check_rounded,
+              onPressed: _submit,
+            ),
           ],
         ),
       ),

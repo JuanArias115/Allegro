@@ -65,7 +65,12 @@ class AppHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x4, AppSpacing.x4, AppSpacing.x3),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.x5,
+        AppSpacing.x4,
+        AppSpacing.x4,
+        AppSpacing.x3,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -91,7 +96,8 @@ class AppHeader extends StatelessWidget {
               ],
             ),
           ),
-          for (final a in actions) Padding(padding: const EdgeInsets.only(left: 8), child: a),
+          for (final a in actions)
+            Padding(padding: const EdgeInsets.only(left: 8), child: a),
         ],
       ),
     );
@@ -125,7 +131,11 @@ class AppIconButton extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(width: 44, height: 44, child: Icon(icon, size: 21, color: fg)),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(icon, size: 21, color: fg),
+        ),
       ),
     );
     return tooltip == null ? widget : Tooltip(message: tooltip!, child: widget);
@@ -144,7 +154,12 @@ class SectionHeader extends StatelessWidget {
     required this.title,
     this.trailingText,
     this.onTrailingTap,
-    this.padding = const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x6, AppSpacing.x5, AppSpacing.x3),
+    this.padding = const EdgeInsets.fromLTRB(
+      AppSpacing.x5,
+      AppSpacing.x6,
+      AppSpacing.x5,
+      AppSpacing.x3,
+    ),
   });
 
   @override
@@ -161,7 +176,9 @@ class SectionHeader extends StatelessWidget {
               child: Text(
                 trailingText!,
                 style: t.labelMedium?.copyWith(
-                  color: onTrailingTap != null ? Theme.of(context).colorScheme.primary : null,
+                  color: onTrailingTap != null
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
                 ),
               ),
             ),

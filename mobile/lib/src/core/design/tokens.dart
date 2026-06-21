@@ -29,7 +29,8 @@ class AppColors {
   static const darkSurfaceMuted = Color(0xFF222820);
 
   /// Fondo suave (12% aprox.) para chips/íconos de un color de acento.
-  static Color soft(Color c) => Color.alphaBlend(c.withValues(alpha: 0.14), cream);
+  static Color soft(Color c) =>
+      Color.alphaBlend(c.withValues(alpha: 0.14), cream);
 }
 
 /// Espaciado en una cuadrícula de 4 px.
@@ -64,28 +65,28 @@ class AppShadows {
   AppShadows._();
 
   static List<BoxShadow> get card => const [
-        BoxShadow(
-          color: Color(0x0F18201C), // ~6% negro
-          blurRadius: 18,
-          offset: Offset(0, 6),
-        ),
-      ];
+    BoxShadow(
+      color: Color(0x0F18201C), // ~6% negro
+      blurRadius: 18,
+      offset: Offset(0, 6),
+    ),
+  ];
 
   static List<BoxShadow> get soft => const [
-        BoxShadow(
-          color: Color(0x0A18201C), // ~4%
-          blurRadius: 12,
-          offset: Offset(0, 4),
-        ),
-      ];
+    BoxShadow(
+      color: Color(0x0A18201C), // ~4%
+      blurRadius: 12,
+      offset: Offset(0, 4),
+    ),
+  ];
 
   static List<BoxShadow> floating(Color tint) => [
-        BoxShadow(
-          color: tint.withValues(alpha: 0.28),
-          blurRadius: 16,
-          offset: const Offset(0, 6),
-        ),
-      ];
+    BoxShadow(
+      color: tint.withValues(alpha: 0.28),
+      blurRadius: 16,
+      offset: const Offset(0, 6),
+    ),
+  ];
 }
 
 class AppDurations {

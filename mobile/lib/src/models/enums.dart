@@ -11,11 +11,14 @@ enum ReservationStatus {
   final String wire;
   final String label;
 
-  static ReservationStatus fromWire(String v) =>
-      values.firstWhere((e) => e.wire == v, orElse: () => ReservationStatus.confirmed);
+  static ReservationStatus fromWire(String v) => values.firstWhere(
+    (e) => e.wire == v,
+    orElse: () => ReservationStatus.confirmed,
+  );
 
   bool get isActive =>
-      this == ReservationStatus.confirmed || this == ReservationStatus.checkedIn;
+      this == ReservationStatus.confirmed ||
+      this == ReservationStatus.checkedIn;
 }
 
 enum PaymentMethod {
@@ -31,26 +34,15 @@ enum PaymentMethod {
       values.firstWhere((e) => e.wire == v, orElse: () => PaymentMethod.cash);
 }
 
-enum ProductCategory {
-  beverages('Beverages', 'Bebidas'),
-  food('Food', 'Alimentos'),
-  services('Services', 'Servicios'),
-  other('Other', 'Otros');
-
-  const ProductCategory(this.wire, this.label);
-  final String wire;
-  final String label;
-
-  static ProductCategory fromWire(String v) =>
-      values.firstWhere((e) => e.wire == v, orElse: () => ProductCategory.other);
-}
+// Las categorías de producto ya no son un enum: ahora son dinámicas y vienen del
+// backend (ver models/product_category.dart y GET /api/product-categories).
 
 /// Color suave asociado a cada estado (etiquetas pequeñas).
 extension ReservationStatusColors on ReservationStatus {
   Color color(ColorScheme scheme) => switch (this) {
-        ReservationStatus.confirmed => const Color(0xFF2E7D52),
-        ReservationStatus.checkedIn => const Color(0xFF1565C0),
-        ReservationStatus.completed => const Color(0xFF616161),
-        ReservationStatus.cancelled => const Color(0xFFB3261E),
-      };
+    ReservationStatus.confirmed => const Color(0xFF2E7D52),
+    ReservationStatus.checkedIn => const Color(0xFF1565C0),
+    ReservationStatus.completed => const Color(0xFF616161),
+    ReservationStatus.cancelled => const Color(0xFFB3261E),
+  };
 }

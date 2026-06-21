@@ -9,7 +9,8 @@
 //
 // ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
@@ -44,7 +45,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '54207387771',
     projectId: 'allegro-95408',
     storageBucket: 'allegro-95408.firebasestorage.app',
-    iosClientId: '54207387771-5c6j1lj7kgv9io4ig1i7cou6smd6paul.apps.googleusercontent.com',
+    iosClientId:
+        '54207387771-5c6j1lj7kgv9io4ig1i7cou6smd6paul.apps.googleusercontent.com',
     iosBundleId: 'com.allegro.allegro',
   );
 }

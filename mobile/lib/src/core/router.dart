@@ -37,16 +37,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       ShellRoute(
         navigatorKey: _shellKey,
         builder: (context, state, child) => HomeShell(child: child),
         routes: [
           GoRoute(path: '/today', builder: (c, s) => const TodayScreen()),
-          GoRoute(path: '/reservations', builder: (c, s) => const ReservationsListScreen()),
+          GoRoute(
+            path: '/reservations',
+            builder: (c, s) => const ReservationsListScreen(),
+          ),
           GoRoute(path: '/calendar', builder: (c, s) => const CalendarScreen()),
           GoRoute(path: '/more', builder: (c, s) => const MoreScreen()),
         ],
@@ -78,7 +78,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/reservations/:id/edit',
         parentNavigatorKey: _rootKey,
-        builder: (c, s) => ReservationFormScreen(editId: s.pathParameters['id']!),
+        builder: (c, s) =>
+            ReservationFormScreen(editId: s.pathParameters['id']!),
       ),
       GoRoute(
         path: '/reservations/:id/checkout',

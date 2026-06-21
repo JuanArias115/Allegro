@@ -20,12 +20,12 @@ class Payment {
   });
 
   factory Payment.fromJson(Map<String, dynamic> j) => Payment(
-        id: j['id'] as String,
-        amount: (j['amount'] as num).toDouble(),
-        paidAt: _date(j['paidAt'] as String),
-        method: PaymentMethod.fromWire(j['method'] as String),
-        note: j['note'] as String?,
-      );
+    id: j['id'] as String,
+    amount: (j['amount'] as num).toDouble(),
+    paidAt: _date(j['paidAt'] as String),
+    method: PaymentMethod.fromWire(j['method'] as String),
+    note: j['note'] as String?,
+  );
 }
 
 class Consumption {
@@ -48,14 +48,14 @@ class Consumption {
   });
 
   factory Consumption.fromJson(Map<String, dynamic> j) => Consumption(
-        id: j['id'] as String,
-        productId: j['productId'] as String,
-        productName: j['productName'] as String,
-        quantity: j['quantity'] as int,
-        unitPrice: (j['unitPrice'] as num).toDouble(),
-        subtotal: (j['subtotal'] as num).toDouble(),
-        consumedAt: _date(j['consumedAt'] as String),
-      );
+    id: j['id'] as String,
+    productId: j['productId'] as String,
+    productName: j['productName'] as String,
+    quantity: j['quantity'] as int,
+    unitPrice: (j['unitPrice'] as num).toDouble(),
+    subtotal: (j['subtotal'] as num).toDouble(),
+    consumedAt: _date(j['consumedAt'] as String),
+  );
 }
 
 /// Resumen para listados (Hoy, Calendario, Historial).
@@ -90,7 +90,8 @@ class ReservationSummary {
     required this.balance,
   });
 
-  factory ReservationSummary.fromJson(Map<String, dynamic> j) => ReservationSummary(
+  factory ReservationSummary.fromJson(Map<String, dynamic> j) =>
+      ReservationSummary(
         id: j['id'] as String,
         guestName: j['guestName'] as String,
         phone: j['phone'] as String,
@@ -152,30 +153,30 @@ class Reservation {
   });
 
   factory Reservation.fromJson(Map<String, dynamic> j) => Reservation(
-        id: j['id'] as String,
-        guestName: j['guestName'] as String,
-        phone: j['phone'] as String,
-        domeId: j['domeId'] as String,
-        domeName: (j['domeName'] as String?) ?? '',
-        checkIn: _date(j['checkIn'] as String),
-        checkOut: _date(j['checkOut'] as String),
-        guestCount: j['guestCount'] as int,
-        lodgingPrice: (j['lodgingPrice'] as num).toDouble(),
-        status: ReservationStatus.fromWire(j['status'] as String),
-        notes: j['notes'] as String?,
-        totalConsumptions: (j['totalConsumptions'] as num).toDouble(),
-        totalDue: (j['totalDue'] as num).toDouble(),
-        totalPaid: (j['totalPaid'] as num).toDouble(),
-        balance: (j['balance'] as num).toDouble(),
-        createdAt: _date(j['createdAt'] as String),
-        updatedAt: _date(j['updatedAt'] as String),
-        payments: (j['payments'] as List<dynamic>)
-            .map((e) => Payment.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        consumptions: (j['consumptions'] as List<dynamic>)
-            .map((e) => Consumption.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    id: j['id'] as String,
+    guestName: j['guestName'] as String,
+    phone: j['phone'] as String,
+    domeId: j['domeId'] as String,
+    domeName: (j['domeName'] as String?) ?? '',
+    checkIn: _date(j['checkIn'] as String),
+    checkOut: _date(j['checkOut'] as String),
+    guestCount: j['guestCount'] as int,
+    lodgingPrice: (j['lodgingPrice'] as num).toDouble(),
+    status: ReservationStatus.fromWire(j['status'] as String),
+    notes: j['notes'] as String?,
+    totalConsumptions: (j['totalConsumptions'] as num).toDouble(),
+    totalDue: (j['totalDue'] as num).toDouble(),
+    totalPaid: (j['totalPaid'] as num).toDouble(),
+    balance: (j['balance'] as num).toDouble(),
+    createdAt: _date(j['createdAt'] as String),
+    updatedAt: _date(j['updatedAt'] as String),
+    payments: (j['payments'] as List<dynamic>)
+        .map((e) => Payment.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    consumptions: (j['consumptions'] as List<dynamic>)
+        .map((e) => Consumption.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }
 
 /// Datos para crear/editar una reserva.
@@ -201,13 +202,13 @@ class ReservationInput {
   });
 
   Map<String, dynamic> toJson() => {
-        'guestName': guestName,
-        'phone': phone,
-        'domeId': domeId,
-        'checkIn': _fmtDate(checkIn),
-        'checkOut': _fmtDate(checkOut),
-        'guestCount': guestCount,
-        'lodgingPrice': lodgingPrice,
-        'notes': notes,
-      };
+    'guestName': guestName,
+    'phone': phone,
+    'domeId': domeId,
+    'checkIn': _fmtDate(checkIn),
+    'checkOut': _fmtDate(checkOut),
+    'guestCount': guestCount,
+    'lodgingPrice': lodgingPrice,
+    'notes': notes,
+  };
 }

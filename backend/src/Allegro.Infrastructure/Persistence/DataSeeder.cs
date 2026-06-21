@@ -29,9 +29,28 @@ public class DataSeeder
     public async Task SeedAsync(bool includeDemoReservations, CancellationToken ct = default)
     {
         await SeedDomesAsync(ct);
+        await SeedProductCategoriesAsync(ct);
         await SeedProductsAsync(ct);
         if (includeDemoReservations)
             await SeedDemoReservationsAsync(ct);
+    }
+
+    private async Task SeedProductCategoriesAsync(CancellationToken ct)
+    {
+        // Normalmente las crea la migración; idempotente por si la base se creó
+        // por otra vía (p. ej. EnsureCreated en desarrollo).
+        if (await _db.ProductCategories.AnyAsync(ct)) return;
+
+        _logger.LogInformation("Sembrando categorías de productos.");
+        _db.ProductCategories.AddRange(
+            ProductCategorySeedData.Initial.Select(c => new ProductCategory
+            {
+                Id = c.Id,
+                Name = c.Name,
+                DisplayOrder = c.Order,
+                IsActive = true,
+            }));
+        await _db.SaveChangesAsync(ct);
     }
 
     private async Task SeedDomesAsync(CancellationToken ct)
@@ -51,12 +70,12 @@ public class DataSeeder
 
         _logger.LogInformation("Sembrando catálogo de productos.");
         _db.Products.AddRange(
-            new Product { Name = "Botella de vino", Category = ProductCategory.Beverages, CurrentPrice = 60000m, IsActive = true },
-            new Product { Name = "Cerveza artesanal", Category = ProductCategory.Beverages, CurrentPrice = 12000m, IsActive = true },
-            new Product { Name = "Desayuno campestre", Category = ProductCategory.Food, CurrentPrice = 25000m, IsActive = true },
-            new Product { Name = "Tabla de quesos", Category = ProductCategory.Food, CurrentPrice = 45000m, IsActive = true },
-            new Product { Name = "Decoración romántica", Category = ProductCategory.Services, CurrentPrice = 80000m, IsActive = true },
-            new Product { Name = "Late checkout", Category = ProductCategory.Services, CurrentPrice = 50000m, IsActive = true });
+            new Product { Name = "Botella de vino", ProductCategoryId = ProductCategorySeedData.Bebidas, CurrentPrice = 60000m, IsActive = true },
+            new Product { Name = "Cerveza artesanal", ProductCategoryId = ProductCategorySeedData.Bebidas, CurrentPrice = 12000m, IsActive = true },
+            new Product { Name = "Desayuno campestre", ProductCategoryId = ProductCategorySeedData.Menu, CurrentPrice = 25000m, IsActive = true },
+            new Product { Name = "Tabla de quesos", ProductCategoryId = ProductCategorySeedData.Menu, CurrentPrice = 45000m, IsActive = true },
+            new Product { Name = "Decoración romántica", ProductCategoryId = ProductCategorySeedData.Servicios, CurrentPrice = 80000m, IsActive = true },
+            new Product { Name = "Late checkout", ProductCategoryId = ProductCategorySeedData.Servicios, CurrentPrice = 50000m, IsActive = true });
         await _db.SaveChangesAsync(ct);
     }
 

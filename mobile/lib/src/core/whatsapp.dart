@@ -28,7 +28,8 @@ class WhatsAppMessages {
     };
   }
 
-  static String _confirmation(Reservation r) => '''
+  static String _confirmation(Reservation r) =>
+      '''
 ¡Hola ${r.guestName}! 🌿
 Tu reserva en el glamping está confirmada:
 
@@ -43,7 +44,8 @@ Tu reserva en el glamping está confirmada:
 
 ¡Te esperamos!''';
 
-  static String _paymentReminder(Reservation r) => '''
+  static String _paymentReminder(Reservation r) =>
+      '''
 ¡Hola ${r.guestName}! 🌿
 Te recordamos el saldo pendiente de tu reserva:
 
@@ -52,7 +54,8 @@ Te recordamos el saldo pendiente de tu reserva:
 
 Cualquier inquietud, con gusto te ayudamos. ¡Gracias!''';
 
-  static String _preArrival(Reservation r) => '''
+  static String _preArrival(Reservation r) =>
+      '''
 ¡Hola ${r.guestName}! 🌿
 Falta poco para tu llegada al glamping:
 
@@ -65,15 +68,21 @@ Por favor confírmanos tu hora aproximada de llegada. ¡Nos vemos pronto!''';
   static String _accountSummary(Reservation r) {
     final buffer = StringBuffer()
       ..writeln('Resumen de cuenta — ${r.guestName} 🌿')
-      ..writeln('🏕️ ${r.domeName} · ${Formatters.dateRange(r.checkIn, r.checkOut)}')
+      ..writeln(
+        '🏕️ ${r.domeName} · ${Formatters.dateRange(r.checkIn, r.checkOut)}',
+      )
       ..writeln('')
       ..writeln('Alojamiento: ${Formatters.money(r.lodgingPrice)}');
     if (r.consumptions.isNotEmpty) {
       buffer.writeln('Consumos:');
       for (final c in r.consumptions) {
-        buffer.writeln('  • ${c.quantity}x ${c.productName} — ${Formatters.money(c.subtotal)}');
+        buffer.writeln(
+          '  • ${c.quantity}x ${c.productName} — ${Formatters.money(c.subtotal)}',
+        );
       }
-      buffer.writeln('Total consumos: ${Formatters.money(r.totalConsumptions)}');
+      buffer.writeln(
+        'Total consumos: ${Formatters.money(r.totalConsumptions)}',
+      );
     }
     buffer
       ..writeln('')
@@ -83,7 +92,8 @@ Por favor confírmanos tu hora aproximada de llegada. ¡Nos vemos pronto!''';
     return buffer.toString();
   }
 
-  static String _reviewRequest(Reservation r) => '''
+  static String _reviewRequest(Reservation r) =>
+      '''
 ¡Hola ${r.guestName}! 🌿
 Esperamos que hayas disfrutado tu estadía en ${r.domeName}.
 
@@ -96,7 +106,9 @@ Nos encantaría conocer tu experiencia: ¿nos dejarías una reseña? 💚
   /// Intenta abrir WhatsApp directamente con el número del huésped.
   static Future<bool> openWhatsApp(String phone, String text) async {
     final digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    final uri = Uri.parse('https://wa.me/$digits?text=${Uri.encodeComponent(text)}');
+    final uri = Uri.parse(
+      'https://wa.me/$digits?text=${Uri.encodeComponent(text)}',
+    );
     if (await canLaunchUrl(uri)) {
       return launchUrl(uri, mode: LaunchMode.externalApplication);
     }

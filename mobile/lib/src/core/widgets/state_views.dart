@@ -32,7 +32,10 @@ class EmptyState extends StatelessWidget {
             Container(
               width: 92,
               height: 92,
-              decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
               child: Icon(icon, size: 42, color: accent),
             ),
             const SizedBox(height: AppSpacing.x5),
@@ -41,7 +44,10 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: AppSpacing.x2),
               Text(message!, textAlign: TextAlign.center, style: t.bodyMedium),
             ],
-            if (action != null) ...[const SizedBox(height: AppSpacing.x6), action!],
+            if (action != null) ...[
+              const SizedBox(height: AppSpacing.x6),
+              action!,
+            ],
           ],
         ),
       ),
@@ -67,15 +73,30 @@ class ErrorState extends StatelessWidget {
             Container(
               width: 92,
               height: 92,
-              decoration: BoxDecoration(color: AppColors.coral.withValues(alpha: 0.12), shape: BoxShape.circle),
-              child: const Icon(Icons.cloud_off_rounded, size: 40, color: AppColors.coral),
+              decoration: BoxDecoration(
+                color: AppColors.coral.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.cloud_off_rounded,
+                size: 40,
+                color: AppColors.coral,
+              ),
             ),
             const SizedBox(height: AppSpacing.x5),
-            Text('No pudimos cargar los datos', textAlign: TextAlign.center, style: t.titleLarge),
+            Text(
+              'No pudimos cargar los datos',
+              textAlign: TextAlign.center,
+              style: t.titleLarge,
+            ),
             const SizedBox(height: AppSpacing.x2),
             Text('$error', textAlign: TextAlign.center, style: t.bodySmall),
             const SizedBox(height: AppSpacing.x6),
-            SecondaryButton(label: 'Reintentar', icon: Icons.refresh_rounded, onPressed: onRetry),
+            SecondaryButton(
+              label: 'Reintentar',
+              icon: Icons.refresh_rounded,
+              onPressed: onRetry,
+            ),
           ],
         ),
       ),
@@ -89,15 +110,23 @@ class SkeletonBox extends StatefulWidget {
   final double? width;
   final double height;
   final double radius;
-  const SkeletonBox({super.key, this.width, required this.height, this.radius = 10});
+  const SkeletonBox({
+    super.key,
+    this.width,
+    required this.height,
+    this.radius = 10,
+  });
 
   @override
   State<SkeletonBox> createState() => _SkeletonBoxState();
 }
 
-class _SkeletonBoxState extends State<SkeletonBox> with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat(reverse: true);
+class _SkeletonBoxState extends State<SkeletonBox>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  )..repeat(reverse: true);
 
   @override
   void dispose() {
@@ -114,7 +143,10 @@ class _SkeletonBoxState extends State<SkeletonBox> with SingleTickerProviderStat
       child: Container(
         width: widget.width,
         height: widget.height,
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(widget.radius)),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(widget.radius),
+        ),
       ),
     );
   }
@@ -128,7 +160,12 @@ class LoadingState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x4, AppSpacing.x5, AppSpacing.x5),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.x5,
+        AppSpacing.x4,
+        AppSpacing.x5,
+        AppSpacing.x5,
+      ),
       itemCount: items,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.x3),
       itemBuilder: (_, __) => Container(
@@ -141,11 +178,13 @@ class LoadingState extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Row(children: [
-              SkeletonBox(width: 150, height: 16),
-              Spacer(),
-              SkeletonBox(width: 70, height: 22, radius: 20),
-            ]),
+            Row(
+              children: [
+                SkeletonBox(width: 150, height: 16),
+                Spacer(),
+                SkeletonBox(width: 70, height: 22, radius: 20),
+              ],
+            ),
             SizedBox(height: 14),
             SkeletonBox(width: 200, height: 12),
             SizedBox(height: 10),

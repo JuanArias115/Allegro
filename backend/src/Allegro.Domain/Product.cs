@@ -10,7 +10,9 @@ public class Product
 
     public string Name { get; set; } = string.Empty;
 
-    public ProductCategory Category { get; set; } = ProductCategory.Other;
+    /// <summary>Categoría dinámica (clave foránea, obligatoria).</summary>
+    public Guid ProductCategoryId { get; set; }
+    public ProductCategory? Category { get; set; }
 
     /// <summary>Precio actual de catálogo. No puede ser negativo.</summary>
     public decimal CurrentPrice { get; set; }

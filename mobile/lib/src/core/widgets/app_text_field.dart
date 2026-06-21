@@ -21,7 +21,14 @@ class _Label extends StatelessWidget {
             fontWeight: FontWeight.w700,
             color: scheme.onSurface,
           ),
-          children: required ? [TextSpan(text: ' *', style: TextStyle(color: AppColors.coral))] : const [],
+          children: required
+              ? [
+                  TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: AppColors.coral),
+                  ),
+                ]
+              : const [],
         ),
       ),
     );
@@ -98,8 +105,14 @@ class _AppTextFieldState extends State<AppTextField> {
               hintText: widget.hint,
               prefixText: widget.prefixText,
               prefixStyle: TextStyle(
-                  fontFamily: 'Manrope', fontSize: 16, fontWeight: FontWeight.w700, color: scheme.onSurface),
-              prefixIcon: widget.icon != null ? Icon(widget.icon, size: 20) : null,
+                fontFamily: 'Manrope',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: scheme.onSurface,
+              ),
+              prefixIcon: widget.icon != null
+                  ? Icon(widget.icon, size: 20)
+                  : null,
               suffixIcon: _suffix(scheme, value.text),
             ),
           ),
@@ -107,7 +120,10 @@ class _AppTextFieldState extends State<AppTextField> {
         if (widget.helper != null)
           Padding(
             padding: const EdgeInsets.only(left: 4, top: 6),
-            child: Text(widget.helper!, style: Theme.of(context).textTheme.bodySmall),
+            child: Text(
+              widget.helper!,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),
       ],
     );
@@ -116,8 +132,11 @@ class _AppTextFieldState extends State<AppTextField> {
   Widget? _suffix(ColorScheme scheme, String text) {
     if (widget.obscure) {
       return IconButton(
-        icon: Icon(_obscured ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-            size: 20, color: scheme.outline),
+        icon: Icon(
+          _obscured ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+          size: 20,
+          color: scheme.outline,
+        ),
         onPressed: () => setState(() => _obscured = !_obscured),
         splashRadius: 18,
       );
@@ -193,10 +212,14 @@ class _PhoneFieldState extends State<PhoneField> {
 
   static (PhoneCountry, String) _parse(String full) {
     final trimmed = full.trim();
-    final byLength = [...kPhoneCountries]..sort((a, b) => b.dial.length.compareTo(a.dial.length));
+    final byLength = [...kPhoneCountries]
+      ..sort((a, b) => b.dial.length.compareTo(a.dial.length));
     for (final c in byLength) {
       if (trimmed.startsWith(c.dial)) {
-        return (c, trimmed.substring(c.dial.length).replaceAll(RegExp(r'[^0-9]'), ''));
+        return (
+          c,
+          trimmed.substring(c.dial.length).replaceAll(RegExp(r'[^0-9]'), ''),
+        );
       }
     }
     return (kPhoneCountries.first, trimmed.replaceAll(RegExp(r'[^0-9]'), ''));
@@ -215,13 +238,26 @@ class _PhoneFieldState extends State<PhoneField> {
       isScrollControlled: true,
       builder: (sheetContext) => SafeArea(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.6),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.6,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.x5, 0, AppSpacing.x5, AppSpacing.x2),
-                child: Align(alignment: Alignment.centerLeft, child: Text('País', style: Theme.of(context).textTheme.titleLarge)),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.x5,
+                  0,
+                  AppSpacing.x5,
+                  AppSpacing.x2,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'País',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
               ),
               Flexible(
                 child: ListView(
@@ -229,9 +265,21 @@ class _PhoneFieldState extends State<PhoneField> {
                   children: [
                     for (final c in kPhoneCountries)
                       ListTile(
-                        leading: Text(c.flag, style: const TextStyle(fontSize: 24)),
-                        title: Text(c.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                        trailing: Text(c.dial, style: TextStyle(color: Theme.of(context).colorScheme.outline, fontWeight: FontWeight.w700)),
+                        leading: Text(
+                          c.flag,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                        title: Text(
+                          c.name,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: Text(
+                          c.dial,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         onTap: () => Navigator.pop(sheetContext, c),
                       ),
                     const SizedBox(height: AppSpacing.x2),
@@ -264,7 +312,10 @@ class _PhoneFieldState extends State<PhoneField> {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             hintText: '300 000 0000',
-            prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 0,
+              minHeight: 0,
+            ),
             prefixIcon: InkWell(
               onTap: _pickCountry,
               borderRadius: AppRadii.all(AppRadii.md),
@@ -275,10 +326,24 @@ class _PhoneFieldState extends State<PhoneField> {
                   children: [
                     Text(_country.flag, style: const TextStyle(fontSize: 19)),
                     const SizedBox(width: 6),
-                    Text(_country.dial, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: scheme.outline),
+                    Text(
+                      _country.dial,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 18,
+                      color: scheme.outline,
+                    ),
                     const SizedBox(width: 10),
-                    Container(width: 1, height: 24, color: scheme.outlineVariant),
+                    Container(
+                      width: 1,
+                      height: 24,
+                      color: scheme.outlineVariant,
+                    ),
                     const SizedBox(width: 4),
                   ],
                 ),
@@ -367,13 +432,26 @@ class AppSelectField<T> extends StatelessWidget {
       isScrollControlled: true,
       builder: (sheetContext) => SafeArea(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.6),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.6,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.x5, 0, AppSpacing.x5, AppSpacing.x2),
-                child: Align(alignment: Alignment.centerLeft, child: Text(label, style: Theme.of(context).textTheme.titleLarge)),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.x5,
+                  0,
+                  AppSpacing.x5,
+                  AppSpacing.x2,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
               ),
               Flexible(
                 child: ListView(
@@ -381,9 +459,16 @@ class AppSelectField<T> extends StatelessWidget {
                   children: [
                     for (final o in options)
                       ListTile(
-                        leading: o.icon != null ? Icon(o.icon, color: o.color ?? scheme.primary) : null,
-                        title: Text(o.label, style: const TextStyle(fontWeight: FontWeight.w600)),
-                        trailing: o.value == value ? Icon(Icons.check_rounded, color: scheme.primary) : null,
+                        leading: o.icon != null
+                            ? Icon(o.icon, color: o.color ?? scheme.primary)
+                            : null,
+                        title: Text(
+                          o.label,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: o.value == value
+                            ? Icon(Icons.check_rounded, color: scheme.primary)
+                            : null,
                         onTap: () => Navigator.pop(sheetContext, o.value),
                       ),
                     const SizedBox(height: AppSpacing.x2),
@@ -409,13 +494,19 @@ class AppSelectField<T> extends StatelessWidget {
       child: Row(
         children: [
           if (icon != null || current.icon != null) ...[
-            Icon(current.icon ?? icon, size: 20, color: current.color ?? scheme.outline),
+            Icon(
+              current.icon ?? icon,
+              size: 20,
+              color: current.color ?? scheme.outline,
+            ),
             const SizedBox(width: 12),
           ],
           Expanded(
-            child: Text(current.label,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            child: Text(
+              current.label,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
           ),
           Icon(Icons.keyboard_arrow_down_rounded, color: scheme.outline),
         ],
@@ -471,7 +562,20 @@ class DateField extends StatelessWidget {
   }
 
   static String _fmt(DateTime d) {
-    const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    const months = [
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
+    ];
     return '${d.day} ${months[d.month - 1]} ${d.year}';
   }
 }
@@ -503,12 +607,23 @@ class StepperField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       child: Row(
         children: [
-          if (icon != null) ...[Icon(icon, size: 20, color: scheme.outline), const SizedBox(width: 10)],
-          Expanded(child: Text(caption ?? '', style: Theme.of(context).textTheme.bodyMedium)),
+          if (icon != null) ...[
+            Icon(icon, size: 20, color: scheme.outline),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Text(
+              caption ?? '',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
           _RoundBtn(icon: Icons.remove_rounded, onTap: onMinus),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text('$value', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            child: Text(
+              '$value',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
           ),
           _RoundBtn(icon: Icons.add_rounded, onTap: onPlus),
         ],
@@ -532,7 +647,11 @@ class _RoundBtn extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(width: 40, height: 40, child: Icon(icon, size: 20, color: c)),
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Icon(icon, size: 20, color: c),
+        ),
       ),
     );
   }

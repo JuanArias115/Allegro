@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../models/enums.dart';
 import '../../models/reservation.dart';
 import '../design/tokens.dart';
 import '../formatters.dart';
@@ -8,23 +7,30 @@ import 'status_badge.dart';
 
 /// Color distintivo y accesible por domo (orden estable).
 Color domeColor(int index) {
-  const palette = [AppColors.blue, AppColors.coral, AppColors.violet, AppColors.yellow];
+  const palette = [
+    AppColors.blue,
+    AppColors.coral,
+    AppColors.violet,
+    AppColors.yellow,
+  ];
   return palette[index % palette.length];
 }
 
-Color categoryColor(ProductCategory c) => switch (c) {
-      ProductCategory.beverages => AppColors.blue,
-      ProductCategory.food => AppColors.yellow,
-      ProductCategory.services => AppColors.coral,
-      ProductCategory.other => AppColors.forest,
-    };
+/// Color de una categoría según su posición (las categorías son dinámicas y no
+/// llevan color propio, así que se asigna por índice de una paleta estable).
+Color categoryColorByIndex(int index) {
+  const palette = [
+    AppColors.blue,
+    AppColors.yellow,
+    AppColors.coral,
+    AppColors.violet,
+    AppColors.forest,
+  ];
+  return palette[index % palette.length];
+}
 
-IconData categoryIcon(ProductCategory c) => switch (c) {
-      ProductCategory.beverages => Icons.local_bar_rounded,
-      ProductCategory.food => Icons.restaurant_rounded,
-      ProductCategory.services => Icons.room_service_rounded,
-      ProductCategory.other => Icons.category_rounded,
-    };
+/// Ícono genérico para categorías dinámicas (sin hardcodear nombres).
+const IconData categoryGenericIcon = Icons.sell_rounded;
 
 /// Ícono en contenedor de color suave (categorías, indicadores, secciones).
 class CategoryIcon extends StatelessWidget {
@@ -32,7 +38,12 @@ class CategoryIcon extends StatelessWidget {
   final Color color;
   final double size;
 
-  const CategoryIcon({super.key, required this.icon, required this.color, this.size = 44});
+  const CategoryIcon({
+    super.key,
+    required this.icon,
+    required this.color,
+    this.size = 44,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,17 +126,33 @@ class SummaryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        color: Colors.white70, fontSize: 13.5, fontWeight: FontWeight.w600)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 6),
-                Text(value,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800, height: 1.05)),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    height: 1.05,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w500)),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
@@ -163,13 +190,21 @@ class MiniStat extends StatelessWidget {
         children: [
           CategoryIcon(icon: icon, color: color, size: 36),
           const SizedBox(height: 10),
-          Text('$count',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, height: 1)),
+          Text(
+            '$count',
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              height: 1,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ],
       ),
     );
@@ -181,7 +216,11 @@ class ReservationCard extends StatelessWidget {
   final ReservationSummary reservation;
   final VoidCallback onTap;
 
-  const ReservationCard({super.key, required this.reservation, required this.onTap});
+  const ReservationCard({
+    super.key,
+    required this.reservation,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +254,9 @@ class ReservationCard extends StatelessWidget {
                   width: 5,
                   decoration: BoxDecoration(
                     color: accent,
-                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(AppRadii.lg)),
+                    borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(AppRadii.lg),
+                    ),
                   ),
                 ),
                 Expanded(
@@ -227,10 +268,12 @@ class ReservationCard extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(r.guestName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleMedium),
+                              child: Text(
+                                r.guestName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
                             ),
                             const SizedBox(width: 8),
                             StatusBadge.reservation(r.status, dense: true),
@@ -242,9 +285,16 @@ class ReservationCard extends StatelessWidget {
                           runSpacing: 6,
                           children: [
                             _meta(context, Icons.cabin_rounded, r.domeName),
-                            _meta(context, Icons.calendar_today_rounded,
-                                Formatters.dateRange(r.checkIn, r.checkOut)),
-                            _meta(context, Icons.person_rounded, '${r.guestCount}'),
+                            _meta(
+                              context,
+                              Icons.calendar_today_rounded,
+                              Formatters.dateRange(r.checkIn, r.checkOut),
+                            ),
+                            _meta(
+                              context,
+                              Icons.person_rounded,
+                              '${r.guestCount}',
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -258,9 +308,14 @@ class ReservationCard extends StatelessWidget {
                               color: payColor,
                             ),
                             const SizedBox(width: 6),
-                            Text(payLabel,
-                                style: TextStyle(
-                                    color: payColor, fontWeight: FontWeight.w700, fontSize: 13.5)),
+                            Text(
+                              payLabel,
+                              style: TextStyle(
+                                color: payColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.5,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -303,7 +358,10 @@ class AppearAnimation extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (context, v, child) => Opacity(
         opacity: v.clamp(0, 1),
-        child: Transform.translate(offset: Offset(0, (1 - v) * 12), child: child),
+        child: Transform.translate(
+          offset: Offset(0, (1 - v) * 12),
+          child: child,
+        ),
       ),
       child: child,
     );

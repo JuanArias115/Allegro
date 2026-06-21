@@ -17,11 +17,5 @@ public enum PaymentMethod
     Other = 2        // Otro
 }
 
-/// <summary>Categorías iniciales del catálogo de productos.</summary>
-public enum ProductCategory
-{
-    Beverages = 0,   // Bebidas
-    Food = 1,        // Alimentos
-    Services = 2,    // Servicios
-    Other = 3        // Otros
-}
+// Las categorías de producto ya no son un enum fijo: ahora son una entidad
+// dinámica (ver ProductCategory.cs) almacenada en base de datos.

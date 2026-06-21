@@ -7,15 +7,21 @@ import 'dart:io' show Platform;
 ///   flutter run --dart-define=AUTH_MODE=firebase
 class AppConfig {
   /// Modo de autenticación: 'local' (desarrollo) o 'firebase'.
-  static const String authMode =
-      String.fromEnvironment('AUTH_MODE', defaultValue: 'local');
+  static const String authMode = String.fromEnvironment(
+    'AUTH_MODE',
+    defaultValue: 'local',
+  );
 
   /// Token estático usado en modo local (debe coincidir con LOCAL_DEV_TOKEN del backend).
-  static const String localDevToken =
-      String.fromEnvironment('LOCAL_DEV_TOKEN', defaultValue: 'allegro-dev-token');
+  static const String localDevToken = String.fromEnvironment(
+    'LOCAL_DEV_TOKEN',
+    defaultValue: 'allegro-dev-token',
+  );
 
-  static const String _overrideBaseUrl =
-      String.fromEnvironment('API_BASE_URL', defaultValue: '');
+  static const String _overrideBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: '',
+  );
 
   static bool get isFirebaseAuth => authMode.toLowerCase() == 'firebase';
 

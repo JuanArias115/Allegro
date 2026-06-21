@@ -14,10 +14,10 @@ class Dome {
   });
 
   factory Dome.fromJson(Map<String, dynamic> json) => Dome(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        shortDescription: (json['shortDescription'] as String?) ?? '',
-        maxCapacity: json['maxCapacity'] as int,
-        isActive: json['isActive'] as bool,
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    shortDescription: (json['shortDescription'] as String?) ?? '',
+    maxCapacity: json['maxCapacity'] as int,
+    isActive: json['isActive'] as bool,
+  );
 }

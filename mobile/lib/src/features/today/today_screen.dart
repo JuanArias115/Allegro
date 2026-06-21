@@ -36,26 +36,59 @@ class TodayScreen extends ConsumerWidget {
         foregroundColor: AppColors.white,
         onPressed: () => context.push('/reservations/new'),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Nueva reserva', style: TextStyle(fontWeight: FontWeight.w700)),
+        label: const Text(
+          'Nueva reserva',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
       ),
       body: todayAsync.when(
         loading: () => const LoadingState(),
-        error: (e, _) => ErrorState(error: e, onRetry: () => ref.invalidate(todayProvider)),
+        error: (e, _) =>
+            ErrorState(error: e, onRetry: () => ref.invalidate(todayProvider)),
         data: (today) => RefreshIndicator(
           color: AppColors.forest,
           onRefresh: () async => ref.invalidate(todayProvider),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x2, AppSpacing.x5, 120),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.x5,
+              AppSpacing.x2,
+              AppSpacing.x5,
+              120,
+            ),
             children: [
-              _OccupancyCard(today: today, totalDomes: domes.isEmpty ? 2 : domes.length),
+              _OccupancyCard(
+                today: today,
+                totalDomes: domes.isEmpty ? 2 : domes.length,
+              ),
               const SizedBox(height: AppSpacing.x3),
               Row(
                 children: [
-                  Expanded(child: MiniStat(icon: Icons.login_rounded, color: AppColors.blue, count: today.arrivals.length, label: 'Llegadas')),
+                  Expanded(
+                    child: MiniStat(
+                      icon: Icons.login_rounded,
+                      color: AppColors.blue,
+                      count: today.arrivals.length,
+                      label: 'Llegadas',
+                    ),
+                  ),
                   const SizedBox(width: AppSpacing.x3),
-                  Expanded(child: MiniStat(icon: Icons.logout_rounded, color: AppColors.coral, count: today.departures.length, label: 'Salidas')),
+                  Expanded(
+                    child: MiniStat(
+                      icon: Icons.logout_rounded,
+                      color: AppColors.coral,
+                      count: today.departures.length,
+                      label: 'Salidas',
+                    ),
+                  ),
                   const SizedBox(width: AppSpacing.x3),
-                  Expanded(child: MiniStat(icon: Icons.upcoming_rounded, color: AppColors.violet, count: today.upcoming.length, label: 'Próximas')),
+                  Expanded(
+                    child: MiniStat(
+                      icon: Icons.upcoming_rounded,
+                      color: AppColors.violet,
+                      count: today.upcoming.length,
+                      label: 'Próximas',
+                    ),
+                  ),
                 ],
               ),
               if (today.isEmpty)
@@ -86,7 +119,10 @@ class _OccupancyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final occupiedDomes = today.currentlyHosted.map((r) => r.domeId).toSet().length;
+    final occupiedDomes = today.currentlyHosted
+        .map((r) => r.domeId)
+        .toSet()
+        .length;
     return AppearAnimation(
       child: SummaryCard(
         title: 'Ocupación de hoy',
@@ -100,7 +136,9 @@ class _OccupancyCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 6),
                 child: Icon(
-                  i < occupiedDomes ? Icons.cabin_rounded : Icons.cabin_outlined,
+                  i < occupiedDomes
+                      ? Icons.cabin_rounded
+                      : Icons.cabin_outlined,
                   color: i < occupiedDomes ? AppColors.white : Colors.white60,
                   size: 28,
                 ),
@@ -123,7 +161,15 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(title: '$title · ${items.length}', padding: const EdgeInsets.fromLTRB(2, AppSpacing.x6, 2, AppSpacing.x3)),
+        SectionHeader(
+          title: '$title · ${items.length}',
+          padding: const EdgeInsets.fromLTRB(
+            2,
+            AppSpacing.x6,
+            2,
+            AppSpacing.x3,
+          ),
+        ),
         for (var i = 0; i < items.length; i++)
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.x3),

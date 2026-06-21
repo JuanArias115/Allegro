@@ -29,6 +29,7 @@ class Formatters {
     final s = _monthYear.format(d);
     return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
   }
+
   static String dateShort(DateTime d) => _dateShort.format(d);
   static String dateTime(DateTime d) => _dateTime.format(d.toLocal());
 

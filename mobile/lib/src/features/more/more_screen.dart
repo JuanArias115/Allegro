@@ -21,7 +21,12 @@ class MoreScreen extends ConsumerWidget {
     return AppScaffold(
       header: const AppHeader(title: 'Más'),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x2, AppSpacing.x5, 120),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.x5,
+          AppSpacing.x2,
+          AppSpacing.x5,
+          120,
+        ),
         children: [
           // Perfil
           AppCard(
@@ -30,20 +35,36 @@ class MoreScreen extends ConsumerWidget {
                 Container(
                   width: 54,
                   height: 54,
-                  decoration: const BoxDecoration(color: AppColors.mint, shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                    color: AppColors.mint,
+                    shape: BoxShape.circle,
+                  ),
                   alignment: Alignment.center,
-                  child: Text(initials,
-                      style: const TextStyle(color: AppColors.forest, fontWeight: FontWeight.w800, fontSize: 18)),
+                  child: Text(
+                    initials,
+                    style: const TextStyle(
+                      color: AppColors.forest,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.x3),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(label,
-                          maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 2),
-                      Text('Allegro · Glamping', style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        'Allegro · Glamping',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                   ),
                 ),
@@ -52,72 +73,80 @@ class MoreScreen extends ConsumerWidget {
           ),
 
           _GroupLabel('Administración'),
-          _Group(children: [
-            _SettingTile(
-              icon: Icons.local_cafe_rounded,
-              color: AppColors.coral,
-              title: 'Productos',
-              subtitle: 'Catálogo de productos y servicios',
-              onTap: () => context.push('/products'),
-            ),
-            _SettingTile(
-              icon: Icons.history_rounded,
-              color: AppColors.violet,
-              title: 'Historial',
-              subtitle: 'Reservas finalizadas y canceladas',
-              onTap: () => context.push('/history'),
-            ),
-          ]),
+          _Group(
+            children: [
+              _SettingTile(
+                icon: Icons.local_cafe_rounded,
+                color: AppColors.coral,
+                title: 'Productos',
+                subtitle: 'Catálogo de productos y servicios',
+                onTap: () => context.push('/products'),
+              ),
+              _SettingTile(
+                icon: Icons.history_rounded,
+                color: AppColors.violet,
+                title: 'Historial',
+                subtitle: 'Reservas finalizadas y canceladas',
+                onTap: () => context.push('/history'),
+              ),
+            ],
+          ),
 
           _GroupLabel('Conexión'),
-          _Group(children: [
-            _SettingTile(
-              icon: Icons.verified_user_rounded,
-              color: AppColors.blue,
-              title: 'Autenticación',
-              value: AppConfig.isFirebaseAuth ? 'Firebase' : 'Local',
-            ),
-            if (!AppConfig.isFirebaseAuth)
+          _Group(
+            children: [
               _SettingTile(
-                icon: Icons.dns_rounded,
-                color: AppColors.yellow,
-                title: 'Servidor (desarrollo)',
-                value: AppConfig.apiBaseUrl,
+                icon: Icons.verified_user_rounded,
+                color: AppColors.blue,
+                title: 'Autenticación',
+                value: AppConfig.isFirebaseAuth ? 'Firebase' : 'Local',
               ),
-          ]),
+              if (!AppConfig.isFirebaseAuth)
+                _SettingTile(
+                  icon: Icons.dns_rounded,
+                  color: AppColors.yellow,
+                  title: 'Servidor (desarrollo)',
+                  value: AppConfig.apiBaseUrl,
+                ),
+            ],
+          ),
 
           _GroupLabel('Aplicación'),
-          _Group(children: [
-            _SettingTile(
-              icon: Icons.info_rounded,
-              color: AppColors.forest,
-              title: 'Acerca de Allegro',
-              value: 'v1.0.0',
-              onTap: () => _about(context),
-            ),
-          ]),
+          _Group(
+            children: [
+              _SettingTile(
+                icon: Icons.info_rounded,
+                color: AppColors.forest,
+                title: 'Acerca de Allegro',
+                value: 'v1.0.0',
+                onTap: () => _about(context),
+              ),
+            ],
+          ),
 
           if (AppConfig.isFirebaseAuth) ...[
             const SizedBox(height: AppSpacing.x4),
-            _Group(children: [
-              _SettingTile(
-                icon: Icons.logout_rounded,
-                color: AppColors.coral,
-                title: 'Cerrar sesión',
-                titleColor: AppColors.coral,
-                onTap: () async {
-                  final ok = await showConfirmationSheet(
-                    context,
-                    title: 'Cerrar sesión',
-                    message: '¿Quieres salir de tu cuenta?',
-                    confirmLabel: 'Cerrar sesión',
-                    icon: Icons.logout_rounded,
-                    accent: AppColors.coral,
-                  );
-                  if (ok) await auth.signOut();
-                },
-              ),
-            ]),
+            _Group(
+              children: [
+                _SettingTile(
+                  icon: Icons.logout_rounded,
+                  color: AppColors.coral,
+                  title: 'Cerrar sesión',
+                  titleColor: AppColors.coral,
+                  onTap: () async {
+                    final ok = await showConfirmationSheet(
+                      context,
+                      title: 'Cerrar sesión',
+                      message: '¿Quieres salir de tu cuenta?',
+                      confirmLabel: 'Cerrar sesión',
+                      icon: Icons.logout_rounded,
+                      accent: AppColors.coral,
+                    );
+                    if (ok) await auth.signOut();
+                  },
+                ),
+              ],
+            ),
           ],
         ],
       ),
@@ -125,10 +154,15 @@ class MoreScreen extends ConsumerWidget {
   }
 
   static String _initials(String s) {
-    final parts = s.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final parts = s
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return 'A';
     if (parts.length == 1) return parts.first.characters.first.toUpperCase();
-    return (parts.first.characters.first + parts[1].characters.first).toUpperCase();
+    return (parts.first.characters.first + parts[1].characters.first)
+        .toUpperCase();
   }
 
   void _about(BuildContext context) {
@@ -137,18 +171,33 @@ class MoreScreen extends ConsumerWidget {
       showDragHandle: true,
       builder: (_) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.x5, 0, AppSpacing.x5, AppSpacing.x6),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.x5,
+            0,
+            AppSpacing.x5,
+            AppSpacing.x6,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CategoryIcon(icon: Icons.cabin_rounded, color: AppColors.forest, size: 64),
+              const CategoryIcon(
+                icon: Icons.cabin_rounded,
+                color: AppColors.forest,
+                size: 64,
+              ),
               const SizedBox(height: AppSpacing.x3),
               Text('Allegro', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 4),
-              Text('Administración del glamping · 2 domos',
-                  textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                'Administración del glamping · 2 domos',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const SizedBox(height: 8),
-              Text('Versión 1.0.0', style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                'Versión 1.0.0',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
           ),
         ),
@@ -163,10 +212,14 @@ class _GroupLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(4, AppSpacing.x6, 4, AppSpacing.x2),
-        child: Text(text,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0.4)),
-      );
+    padding: const EdgeInsets.fromLTRB(4, AppSpacing.x6, 4, AppSpacing.x2),
+    child: Text(
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.labelMedium?.copyWith(letterSpacing: 0.4),
+    ),
+  );
 }
 
 class _Group extends StatelessWidget {
@@ -185,7 +238,8 @@ class _Group extends StatelessWidget {
       child: Column(
         children: [
           for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) Divider(height: 1, indent: 64, color: scheme.outlineVariant),
+            if (i > 0)
+              Divider(height: 1, indent: 64, color: scheme.outlineVariant),
             children[i],
           ],
         ],
@@ -231,11 +285,20 @@ class _SettingTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(color: titleColor)),
+                    Text(
+                      title,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleSmall?.copyWith(color: titleColor),
+                    ),
                     if (subtitle != null) ...[
                       const SizedBox(height: 2),
-                      Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        subtitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                   ],
                 ),
@@ -243,11 +306,13 @@ class _SettingTile extends StatelessWidget {
               if (value != null)
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 150),
-                  child: Text(value!,
-                      textAlign: TextAlign.right,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall),
+                  child: Text(
+                    value!,
+                    textAlign: TextAlign.right,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ),
               if (onTap != null && value == null)
                 Icon(Icons.chevron_right_rounded, color: scheme.outline),

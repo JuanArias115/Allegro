@@ -15,6 +15,7 @@ public interface IAppDbContext
     DbSet<Payment> Payments { get; }
     DbSet<Consumption> Consumptions { get; }
     DbSet<Product> Products { get; }
+    DbSet<ProductCategory> ProductCategories { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default);

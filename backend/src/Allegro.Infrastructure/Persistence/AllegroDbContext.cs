@@ -14,6 +14,7 @@ public class AllegroDbContext : DbContext, IAppDbContext
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<Consumption> Consumptions => Set<Consumption>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
         Database.BeginTransactionAsync(ct);
@@ -31,16 +32,30 @@ public class AllegroDbContext : DbContext, IAppDbContext
             e.Property(x => x.IsActive).HasDefaultValue(true);
         });
 
+        b.Entity<ProductCategory>(e =>
+        {
+            e.ToTable("product_categories");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(80);
+            e.Property(x => x.DisplayOrder).HasDefaultValue(0);
+            e.Property(x => x.IsActive).HasDefaultValue(true);
+            e.HasIndex(x => x.DisplayOrder);
+        });
+
         b.Entity<Product>(e =>
         {
             e.ToTable("products");
             e.HasKey(x => x.Id);
             e.Property(x => x.Name).IsRequired().HasMaxLength(120);
-            e.Property(x => x.Category).HasConversion<int>();
             e.Property(x => x.CurrentPrice).HasColumnType("numeric(12,2)");
             e.Property(x => x.IsActive).HasDefaultValue(true);
             e.Property(x => x.ImageUrl).HasMaxLength(500);
-            e.HasIndex(x => x.Category);
+
+            e.HasOne(x => x.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(x => x.ProductCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.ProductCategoryId);
         });
 
         b.Entity<Reservation>(e =>

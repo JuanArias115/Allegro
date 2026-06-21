@@ -31,19 +31,19 @@ class CheckoutSummary {
   });
 
   factory CheckoutSummary.fromJson(Map<String, dynamic> j) => CheckoutSummary(
-        reservationId: j['reservationId'] as String,
-        guestName: j['guestName'] as String,
-        domeName: (j['domeName'] as String?) ?? '',
-        checkIn: DateTime.parse(j['checkIn'] as String),
-        checkOut: DateTime.parse(j['checkOut'] as String),
-        lodgingPrice: (j['lodgingPrice'] as num).toDouble(),
-        consumptions: (j['consumptions'] as List<dynamic>)
-            .map((e) => Consumption.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        totalConsumptions: (j['totalConsumptions'] as num).toDouble(),
-        totalDue: (j['totalDue'] as num).toDouble(),
-        totalPaid: (j['totalPaid'] as num).toDouble(),
-        balance: (j['balance'] as num).toDouble(),
-        status: ReservationStatus.fromWire(j['status'] as String),
-      );
+    reservationId: j['reservationId'] as String,
+    guestName: j['guestName'] as String,
+    domeName: (j['domeName'] as String?) ?? '',
+    checkIn: DateTime.parse(j['checkIn'] as String),
+    checkOut: DateTime.parse(j['checkOut'] as String),
+    lodgingPrice: (j['lodgingPrice'] as num).toDouble(),
+    consumptions: (j['consumptions'] as List<dynamic>)
+        .map((e) => Consumption.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    totalConsumptions: (j['totalConsumptions'] as num).toDouble(),
+    totalDue: (j['totalDue'] as num).toDouble(),
+    totalPaid: (j['totalPaid'] as num).toDouble(),
+    balance: (j['balance'] as num).toDouble(),
+    status: ReservationStatus.fromWire(j['status'] as String),
+  );
 }

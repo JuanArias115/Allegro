@@ -33,17 +33,28 @@ class PrimaryButton extends StatelessWidget {
         disabledForegroundColor: AppColors.white,
         minimumSize: const Size.fromHeight(54),
         shape: RoundedRectangleBorder(borderRadius: AppRadii.all(AppRadii.md)),
-        textStyle: const TextStyle(fontFamily: 'Manrope', fontSize: 15.5, fontWeight: FontWeight.w700),
+        textStyle: const TextStyle(
+          fontFamily: 'Manrope',
+          fontSize: 15.5,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       child: loading
           ? const SizedBox(
-              height: 22, width: 22,
-              child: CircularProgressIndicator(strokeWidth: 2.4, color: AppColors.white),
+              height: 22,
+              width: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.4,
+                color: AppColors.white,
+              ),
             )
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (icon != null) ...[Icon(icon, size: 19), const SizedBox(width: 8)],
+                if (icon != null) ...[
+                  Icon(icon, size: 19),
+                  const SizedBox(width: 8),
+                ],
                 Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
               ],
             ),
@@ -80,7 +91,11 @@ class SecondaryButton extends StatelessWidget {
         minimumSize: const Size.fromHeight(52),
         padding: const EdgeInsets.symmetric(horizontal: 18),
         shape: RoundedRectangleBorder(borderRadius: AppRadii.all(AppRadii.md)),
-        textStyle: const TextStyle(fontFamily: 'Manrope', fontSize: 15, fontWeight: FontWeight.w700),
+        textStyle: const TextStyle(
+          fontFamily: 'Manrope',
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

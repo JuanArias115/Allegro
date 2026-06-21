@@ -7,7 +7,11 @@ enum AppMessageType { success, error, info }
 
 /// SnackBar personalizado (no genérico): ícono, color de acento y forma suave.
 class AppSnackBar {
-  static void show(BuildContext context, String message, {AppMessageType type = AppMessageType.info}) {
+  static void show(
+    BuildContext context,
+    String message, {
+    AppMessageType type = AppMessageType.info,
+  }) {
     final (color, icon) = switch (type) {
       AppMessageType.success => (AppColors.forest, Icons.check_circle_rounded),
       AppMessageType.error => (AppColors.coral, Icons.error_rounded),
@@ -27,9 +31,14 @@ class AppSnackBar {
             Icon(icon, color: color, size: 20),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(message,
-                  style: const TextStyle(
-                      color: Colors.white, fontFamily: 'Manrope', fontWeight: FontWeight.w600)),
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
@@ -54,7 +63,12 @@ Future<bool> showConfirmationSheet(
     isScrollControlled: true,
     builder: (context) => SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x2, AppSpacing.x5, AppSpacing.x5),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.x5,
+          AppSpacing.x2,
+          AppSpacing.x5,
+          AppSpacing.x5,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -63,16 +77,31 @@ Future<bool> showConfirmationSheet(
               child: Container(
                 width: 64,
                 height: 64,
-                decoration: BoxDecoration(color: accent.withValues(alpha: 0.14), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.14),
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(icon, color: accent, size: 30),
               ),
             ),
             const SizedBox(height: AppSpacing.x4),
-            Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: AppSpacing.x2),
-            Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             const SizedBox(height: AppSpacing.x6),
-            PrimaryButton(label: confirmLabel, color: accent, onPressed: () => Navigator.pop(context, true)),
+            PrimaryButton(
+              label: confirmLabel,
+              color: accent,
+              onPressed: () => Navigator.pop(context, true),
+            ),
             const SizedBox(height: AppSpacing.x2),
             SecondaryButton(
               label: cancelLabel,

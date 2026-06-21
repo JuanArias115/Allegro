@@ -1,5 +1,6 @@
 using Allegro.Application.Dtos;
 using Allegro.Domain;
+using Allegro.Infrastructure.Persistence;
 using FluentAssertions;
 using Xunit;
 
@@ -56,7 +57,7 @@ public class BalanceAndCheckoutTests
 
         // Cambiamos el precio de catálogo después del consumo.
         await h.Products().UpdateAsync(product.Id,
-            new UpsertProductDto("Vino", ProductCategory.Beverages, 99000m, true, null));
+            new UpsertProductDto("Vino", ProductCategorySeedData.Bebidas, 99000m, true, null));
 
         var detail = await h.Reservations().GetByIdAsync(r.Id);
 

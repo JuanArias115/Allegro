@@ -9,6 +9,7 @@ import 'data/reservation_repository.dart';
 import 'models/dome.dart';
 import 'models/enums.dart';
 import 'models/product.dart';
+import 'models/product_category.dart';
 import 'models/reservation.dart';
 import 'models/today.dart';
 
@@ -24,30 +25,44 @@ final apiClientProvider = Provider<ApiClient>((ref) {
 });
 
 final reservationRepositoryProvider = Provider<ReservationRepository>(
-    (ref) => ReservationRepository(ref.watch(apiClientProvider)));
+  (ref) => ReservationRepository(ref.watch(apiClientProvider)),
+);
 
 final productRepositoryProvider = Provider<ProductRepository>(
-    (ref) => ProductRepository(ref.watch(apiClientProvider)));
+  (ref) => ProductRepository(ref.watch(apiClientProvider)),
+);
 
 final domeRepositoryProvider = Provider<DomeRepository>(
-    (ref) => DomeRepository(ref.watch(apiClientProvider)));
+  (ref) => DomeRepository(ref.watch(apiClientProvider)),
+);
 
 // ----- Datos -----
 
 final todayProvider = FutureProvider.autoDispose<TodayState>(
-    (ref) => ref.watch(reservationRepositoryProvider).today());
+  (ref) => ref.watch(reservationRepositoryProvider).today(),
+);
 
 final domesProvider = FutureProvider<List<Dome>>(
-    (ref) => ref.watch(domeRepositoryProvider).getAll());
+  (ref) => ref.watch(domeRepositoryProvider).getAll(),
+);
 
 final activeDomesProvider = FutureProvider<List<Dome>>(
-    (ref) => ref.watch(domeRepositoryProvider).getAll(onlyActive: true));
+  (ref) => ref.watch(domeRepositoryProvider).getAll(onlyActive: true),
+);
 
 final productsProvider = FutureProvider.autoDispose<List<Product>>(
-    (ref) => ref.watch(productRepositoryProvider).getAll());
+  (ref) => ref.watch(productRepositoryProvider).getAll(),
+);
 
 final activeProductsProvider = FutureProvider.autoDispose<List<Product>>(
-    (ref) => ref.watch(productRepositoryProvider).getAll(onlyActive: true));
+  (ref) => ref.watch(productRepositoryProvider).getAll(onlyActive: true),
+);
+
+/// Categorías activas desde el backend (no hay nombres hardcodeados en la app).
+final productCategoriesProvider =
+    FutureProvider.autoDispose<List<ProductCategory>>(
+      (ref) => ref.watch(productRepositoryProvider).getCategories(),
+    );
 
 /// Filtros del listado/historial de reservas.
 class ReservationFilter {
@@ -65,13 +80,12 @@ class ReservationFilter {
     bool? active,
     bool clearDome = false,
     bool clearStatus = false,
-  }) =>
-      ReservationFilter(
-        text: text ?? this.text,
-        domeId: clearDome ? null : (domeId ?? this.domeId),
-        status: clearStatus ? null : (status ?? this.status),
-        active: active ?? this.active,
-      );
+  }) => ReservationFilter(
+    text: text ?? this.text,
+    domeId: clearDome ? null : (domeId ?? this.domeId),
+    status: clearStatus ? null : (status ?? this.status),
+    active: active ?? this.active,
+  );
 
   // Igualdad por valor: imprescindible para que el provider .family no se
   // recree en cada build (lo que causaría un bucle de recarga infinito).
@@ -89,19 +103,20 @@ class ReservationFilter {
 
 final reservationListProvider = FutureProvider.autoDispose
     .family<List<ReservationSummary>, ReservationFilter>((ref, filter) {
-  final repo = ref.watch(reservationRepositoryProvider);
-  final isPhone = (filter.text ?? '').isNotEmpty &&
-      RegExp(r'^[0-9+\s-]+$').hasMatch(filter.text!);
-  return repo.list(
-    name: isPhone ? null : filter.text,
-    phone: isPhone ? filter.text : null,
-    domeId: filter.domeId,
-    status: filter.status,
-    active: filter.active,
-  );
-});
+      final repo = ref.watch(reservationRepositoryProvider);
+      final isPhone =
+          (filter.text ?? '').isNotEmpty &&
+          RegExp(r'^[0-9+\s-]+$').hasMatch(filter.text!);
+      return repo.list(
+        name: isPhone ? null : filter.text,
+        phone: isPhone ? filter.text : null,
+        domeId: filter.domeId,
+        status: filter.status,
+        active: filter.active,
+      );
+    });
 
-final reservationDetailProvider =
-    FutureProvider.autoDispose.family<Reservation, String>((ref, id) {
-  return ref.watch(reservationRepositoryProvider).getById(id);
-});
+final reservationDetailProvider = FutureProvider.autoDispose
+    .family<Reservation, String>((ref, id) {
+      return ref.watch(reservationRepositoryProvider).getById(id);
+    });

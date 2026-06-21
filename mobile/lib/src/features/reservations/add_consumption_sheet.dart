@@ -9,7 +9,10 @@ import '../../providers.dart';
 
 typedef ConsumptionResult = ({String productId, int quantity});
 
-Future<ConsumptionResult?> showAddConsumptionSheet(BuildContext context, WidgetRef ref) {
+Future<ConsumptionResult?> showAddConsumptionSheet(
+  BuildContext context,
+  WidgetRef ref,
+) {
   return showModalBottomSheet<ConsumptionResult>(
     context: context,
     isScrollControlled: true,
@@ -22,7 +25,8 @@ class _AddConsumptionSheet extends ConsumerStatefulWidget {
   const _AddConsumptionSheet();
 
   @override
-  ConsumerState<_AddConsumptionSheet> createState() => _AddConsumptionSheetState();
+  ConsumerState<_AddConsumptionSheet> createState() =>
+      _AddConsumptionSheetState();
 }
 
 class _AddConsumptionSheetState extends ConsumerState<_AddConsumptionSheet> {
@@ -44,7 +48,10 @@ class _AddConsumptionSheetState extends ConsumerState<_AddConsumptionSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Agregar consumo', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Agregar consumo',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 16),
           productsAsync.when(
             loading: () => const Padding(
@@ -70,7 +77,10 @@ class _AddConsumptionSheetState extends ConsumerState<_AddConsumptionSheet> {
                     value: _product!,
                     options: [
                       for (final p in products)
-                        SelectOption(p, '${p.name} · ${Formatters.money(p.currentPrice)}'),
+                        SelectOption(
+                          p,
+                          '${p.name} · ${Formatters.money(p.currentPrice)}',
+                        ),
                     ],
                     onChanged: (p) => setState(() => _product = p),
                   ),
@@ -79,14 +89,19 @@ class _AddConsumptionSheetState extends ConsumerState<_AddConsumptionSheet> {
                     label: 'Cantidad',
                     caption: 'Subtotal ${Formatters.money(subtotal)}',
                     value: _quantity,
-                    onMinus: _quantity > 1 ? () => setState(() => _quantity--) : null,
+                    onMinus: _quantity > 1
+                        ? () => setState(() => _quantity--)
+                        : null,
                     onPlus: () => setState(() => _quantity++),
                   ),
                   const SizedBox(height: 24),
                   PrimaryButton(
                     label: 'Agregar consumo',
                     icon: Icons.add_rounded,
-                    onPressed: () => Navigator.pop(context, (productId: _product!.id, quantity: _quantity)),
+                    onPressed: () => Navigator.pop(context, (
+                      productId: _product!.id,
+                      quantity: _quantity,
+                    )),
                   ),
                 ],
               );

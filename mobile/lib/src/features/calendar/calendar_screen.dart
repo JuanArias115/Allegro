@@ -43,20 +43,37 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.forest,
         foregroundColor: AppColors.white,
-        onPressed: () => context.push('/reservations/new?date=${_selected.toIso8601String().substring(0, 10)}'),
+        onPressed: () => context.push(
+          '/reservations/new?date=${_selected.toIso8601String().substring(0, 10)}',
+        ),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Reservar', style: TextStyle(fontWeight: FontWeight.w700)),
+        label: const Text(
+          'Reservar',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
       ),
       body: async.when(
         loading: () => const LoadingState(),
-        error: (e, _) => ErrorState(error: e, onRetry: () => ref.invalidate(reservationListProvider(filter))),
+        error: (e, _) => ErrorState(
+          error: e,
+          onRetry: () => ref.invalidate(reservationListProvider(filter)),
+        ),
         data: (allRaw) {
-          final all = allRaw.where((r) => r.status != ReservationStatus.cancelled).toList();
-          final domeIndex = {for (var i = 0; i < domes.length; i++) domes[i].id: i};
+          final all = allRaw
+              .where((r) => r.status != ReservationStatus.cancelled)
+              .toList();
+          final domeIndex = {
+            for (var i = 0; i < domes.length; i++) domes[i].id: i,
+          };
           final dayItems = all.where((r) => _covers(r, _selected)).toList();
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x2, AppSpacing.x5, 120),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.x5,
+              AppSpacing.x2,
+              AppSpacing.x5,
+              120,
+            ),
             children: [
               _MonthCard(
                 month: _month,
@@ -64,15 +81,24 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 reservations: all,
                 domeIndex: domeIndex,
                 covers: _covers,
-                onPrev: () => setState(() => _month = DateTime(_month.year, _month.month - 1, 1)),
-                onNext: () => setState(() => _month = DateTime(_month.year, _month.month + 1, 1)),
+                onPrev: () => setState(
+                  () => _month = DateTime(_month.year, _month.month - 1, 1),
+                ),
+                onNext: () => setState(
+                  () => _month = DateTime(_month.year, _month.month + 1, 1),
+                ),
                 onSelect: (d) => setState(() => _selected = d),
               ),
               const SizedBox(height: AppSpacing.x4),
               _Legend(domes: domes),
               SectionHeader(
                 title: Formatters.weekdayDate(_selected),
-                padding: const EdgeInsets.fromLTRB(2, AppSpacing.x5, 2, AppSpacing.x3),
+                padding: const EdgeInsets.fromLTRB(
+                  2,
+                  AppSpacing.x5,
+                  2,
+                  AppSpacing.x3,
+                ),
               ),
               if (dayItems.isEmpty)
                 const Padding(
@@ -90,7 +116,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     padding: const EdgeInsets.only(bottom: AppSpacing.x3),
                     child: ReservationCard(
                       reservation: dayItems[i],
-                      onTap: () => context.push('/reservations/${dayItems[i].id}'),
+                      onTap: () =>
+                          context.push('/reservations/${dayItems[i].id}'),
                     ),
                   ),
             ],
@@ -126,19 +153,27 @@ class _MonthCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    final leadOffset = (DateTime(month.year, month.month, 1).weekday + 6) % 7; // Lun = 0
+    final leadOffset =
+        (DateTime(month.year, month.month, 1).weekday + 6) % 7; // Lun = 0
     final totalCells = ((leadOffset + daysInMonth) / 7).ceil() * 7;
     final today = DateTime.now();
 
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.x4, AppSpacing.x4, AppSpacing.x4, AppSpacing.x3),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.x4,
+        AppSpacing.x4,
+        AppSpacing.x4,
+        AppSpacing.x3,
+      ),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                child: Text(Formatters.monthYear(month),
-                    style: Theme.of(context).textTheme.titleLarge),
+                child: Text(
+                  Formatters.monthYear(month),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
               _NavBtn(icon: Icons.chevron_left_rounded, onTap: onPrev),
               const SizedBox(width: 8),
@@ -151,7 +186,14 @@ class _MonthCard extends StatelessWidget {
               for (final d in const ['L', 'M', 'X', 'J', 'V', 'S', 'D'])
                 Expanded(
                   child: Center(
-                    child: Text(d, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: scheme.outline)),
+                    child: Text(
+                      d,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: scheme.outline,
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -167,9 +209,14 @@ class _MonthCard extends StatelessWidget {
             ),
             itemBuilder: (context, i) {
               final dayNum = i - leadOffset + 1;
-              if (dayNum < 1 || dayNum > daysInMonth) return const SizedBox.shrink();
+              if (dayNum < 1 || dayNum > daysInMonth) {
+                return const SizedBox.shrink();
+              }
               final date = DateTime(month.year, month.month, dayNum);
-              final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
+              final isToday =
+                  date.year == today.year &&
+                  date.month == today.month &&
+                  date.day == today.day;
               final isSelected = date == selected;
 
               final occupied = <int>{};
@@ -219,8 +266,8 @@ class _DayCell extends StatelessWidget {
     final Color numberColor = isSelected
         ? AppColors.white
         : isToday
-            ? AppColors.forest
-            : scheme.onSurface;
+        ? AppColors.forest
+        : scheme.onSurface;
 
     return InkWell(
       onTap: onTap,
@@ -234,10 +281,20 @@ class _DayCell extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isSelected ? AppColors.forest : (isToday ? AppColors.mint : Colors.transparent),
+              color: isSelected
+                  ? AppColors.forest
+                  : (isToday ? AppColors.mint : Colors.transparent),
             ),
-            child: Text('$day',
-                style: TextStyle(fontSize: 14, fontWeight: isToday || isSelected ? FontWeight.w800 : FontWeight.w600, color: numberColor)),
+            child: Text(
+              '$day',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isToday || isSelected
+                    ? FontWeight.w800
+                    : FontWeight.w600,
+                color: numberColor,
+              ),
+            ),
           ),
           const SizedBox(height: 4),
           SizedBox(
@@ -250,7 +307,9 @@ class _DayCell extends StatelessWidget {
                     width: 16,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: occupied.contains(d) ? domeColor(d) : Colors.transparent,
+                      color: occupied.contains(d)
+                          ? domeColor(d)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -277,7 +336,11 @@ class _NavBtn extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(width: 38, height: 38, child: Icon(icon, color: AppColors.forest, size: 22)),
+        child: SizedBox(
+          width: 38,
+          height: 38,
+          child: Icon(icon, color: AppColors.forest, size: 22),
+        ),
       ),
     );
   }
@@ -298,7 +361,14 @@ class _Legend extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 14, height: 6, decoration: BoxDecoration(color: domeColor(i), borderRadius: BorderRadius.circular(3))),
+              Container(
+                width: 14,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: domeColor(i),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
               const SizedBox(width: 6),
               Text(domes[i].name, style: Theme.of(context).textTheme.bodySmall),
             ],

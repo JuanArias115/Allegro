@@ -13,10 +13,12 @@ class ReservationsListScreen extends ConsumerStatefulWidget {
   const ReservationsListScreen({super.key});
 
   @override
-  ConsumerState<ReservationsListScreen> createState() => _ReservationsListScreenState();
+  ConsumerState<ReservationsListScreen> createState() =>
+      _ReservationsListScreenState();
 }
 
-class _ReservationsListScreenState extends ConsumerState<ReservationsListScreen> {
+class _ReservationsListScreenState
+    extends ConsumerState<ReservationsListScreen> {
   final _searchCtrl = TextEditingController();
   String _text = '';
   ReservationStatus? _status;
@@ -40,7 +42,11 @@ class _ReservationsListScreenState extends ConsumerState<ReservationsListScreen>
       header: AppHeader(
         title: 'Reservas',
         actions: [
-          AppIconButton(icon: Icons.history_rounded, tooltip: 'Historial', onTap: () => context.push('/history')),
+          AppIconButton(
+            icon: Icons.history_rounded,
+            tooltip: 'Historial',
+            onTap: () => context.push('/history'),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -48,12 +54,20 @@ class _ReservationsListScreenState extends ConsumerState<ReservationsListScreen>
         foregroundColor: AppColors.white,
         onPressed: () => context.push('/reservations/new'),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Nueva', style: TextStyle(fontWeight: FontWeight.w700)),
+        label: const Text(
+          'Nueva',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x1, AppSpacing.x5, AppSpacing.x3),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.x5,
+              AppSpacing.x1,
+              AppSpacing.x5,
+              AppSpacing.x3,
+            ),
             child: _SearchBar(
               controller: _searchCtrl,
               onChanged: (v) => setState(() => _text = v),
@@ -65,44 +79,69 @@ class _ReservationsListScreenState extends ConsumerState<ReservationsListScreen>
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
               children: [
-                _Chip(label: 'Activas', selected: _status == null, onTap: () => setState(() => _status = null)),
+                _Chip(
+                  label: 'Activas',
+                  selected: _status == null,
+                  onTap: () => setState(() => _status = null),
+                ),
                 for (final s in ReservationStatus.values)
-                  _Chip(label: s.label, selected: _status == s, onTap: () => setState(() => _status = s)),
+                  _Chip(
+                    label: s.label,
+                    selected: _status == s,
+                    onTap: () => setState(() => _status = s),
+                  ),
               ],
             ),
           ),
           Expanded(
             child: listAsync.when(
               loading: () => const LoadingState(),
-              error: (e, _) => ErrorState(error: e, onRetry: () => ref.invalidate(reservationListProvider(filter))),
+              error: (e, _) => ErrorState(
+                error: e,
+                onRetry: () => ref.invalidate(reservationListProvider(filter)),
+              ),
               data: (items) {
                 if (items.isEmpty) {
                   return EmptyState(
                     icon: Icons.event_busy_rounded,
                     title: 'Sin reservas',
-                    message: _text.isNotEmpty ? 'Nada coincide con tu búsqueda.' : 'No hay reservas con este filtro.',
+                    message: _text.isNotEmpty
+                        ? 'Nada coincide con tu búsqueda.'
+                        : 'No hay reservas con este filtro.',
                     accent: AppColors.violet,
                   );
                 }
                 return RefreshIndicator(
                   color: AppColors.forest,
-                  onRefresh: () async => ref.invalidate(reservationListProvider(filter)),
+                  onRefresh: () async =>
+                      ref.invalidate(reservationListProvider(filter)),
                   child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.x5, AppSpacing.x3, AppSpacing.x5, 120),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.x5,
+                      AppSpacing.x3,
+                      AppSpacing.x5,
+                      120,
+                    ),
                     itemCount: items.length + 1,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.x3),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpacing.x3),
                     itemBuilder: (c, i) {
                       if (i == 0) {
                         return Padding(
                           padding: const EdgeInsets.only(left: 2, bottom: 2),
-                          child: Text('${items.length} resultado${items.length == 1 ? '' : 's'}',
-                              style: Theme.of(context).textTheme.bodySmall),
+                          child: Text(
+                            '${items.length} resultado${items.length == 1 ? '' : 's'}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                         );
                       }
                       final r = items[i - 1];
                       return AppearAnimation(
                         index: i - 1,
-                        child: ReservationCard(reservation: r, onTap: () => context.push('/reservations/${r.id}')),
+                        child: ReservationCard(
+                          reservation: r,
+                          onTap: () => context.push('/reservations/${r.id}'),
+                        ),
                       );
                     },
                   ),
@@ -150,7 +189,11 @@ class _Chip extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _Chip({required this.label, required this.selected, required this.onTap});
+  const _Chip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

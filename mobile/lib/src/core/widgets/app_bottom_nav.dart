@@ -6,7 +6,11 @@ class AppNavItem {
   final IconData icon;
   final IconData activeIcon;
   final String label;
-  const AppNavItem({required this.icon, required this.activeIcon, required this.label});
+  const AppNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
 }
 
 /// Navegación inferior tipo píldora, integrada con el fondo crema.
@@ -33,7 +37,12 @@ class AppBottomNavigation extends StatelessWidget {
       child: MediaQuery.withClampedTextScaling(
         maxScaleFactor: 1.1,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.x4, 0, AppSpacing.x4, AppSpacing.x2),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.x4,
+            0,
+            AppSpacing.x4,
+            AppSpacing.x2,
+          ),
           child: Container(
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -97,7 +106,11 @@ class _NavButton extends StatelessWidget {
                 color: active ? AppColors.mint : Colors.transparent,
                 borderRadius: AppRadii.all(AppRadii.pill),
               ),
-              child: Icon(active ? item.activeIcon : item.icon, size: 22, color: fg),
+              child: Icon(
+                active ? item.activeIcon : item.icon,
+                size: 22,
+                color: fg,
+              ),
             ),
             const SizedBox(height: 3),
             FittedBox(

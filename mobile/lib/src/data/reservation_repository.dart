@@ -23,12 +23,16 @@ class ReservationRepository {
     DateTime checkOut, {
     String? excludeReservationId,
   }) async {
-    final data = await _api.get<Map<String, dynamic>>('/api/availability', query: {
-      'domeId': domeId,
-      'checkIn': _date(checkIn),
-      'checkOut': _date(checkOut),
-      if (excludeReservationId != null) 'excludeReservationId': excludeReservationId,
-    });
+    final data = await _api.get<Map<String, dynamic>>(
+      '/api/availability',
+      query: {
+        'domeId': domeId,
+        'checkIn': _date(checkIn),
+        'checkOut': _date(checkOut),
+        if (excludeReservationId != null)
+          'excludeReservationId': excludeReservationId,
+      },
+    );
     return Availability.fromJson(data);
   }
 
@@ -41,16 +45,21 @@ class ReservationRepository {
     DateTime? to,
     bool? active,
   }) async {
-    final data = await _api.get<List<dynamic>>('/api/reservations', query: {
-      if (name != null && name.isNotEmpty) 'name': name,
-      if (phone != null && phone.isNotEmpty) 'phone': phone,
-      if (domeId != null) 'domeId': domeId,
-      if (status != null) 'status': status.wire,
-      if (from != null) 'from': _date(from),
-      if (to != null) 'to': _date(to),
-      if (active != null) 'active': active,
-    });
-    return data.map((e) => ReservationSummary.fromJson(e as Map<String, dynamic>)).toList();
+    final data = await _api.get<List<dynamic>>(
+      '/api/reservations',
+      query: {
+        if (name != null && name.isNotEmpty) 'name': name,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+        if (domeId != null) 'domeId': domeId,
+        if (status != null) 'status': status.wire,
+        if (from != null) 'from': _date(from),
+        if (to != null) 'to': _date(to),
+        if (active != null) 'active': active,
+      },
+    );
+    return data
+        .map((e) => ReservationSummary.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Reservation> getById(String id) async {
@@ -59,18 +68,26 @@ class ReservationRepository {
   }
 
   Future<Reservation> create(ReservationInput input) async {
-    final data = await _api.post<Map<String, dynamic>>('/api/reservations', body: input.toJson());
+    final data = await _api.post<Map<String, dynamic>>(
+      '/api/reservations',
+      body: input.toJson(),
+    );
     return Reservation.fromJson(data);
   }
 
   Future<Reservation> update(String id, ReservationInput input) async {
-    final data = await _api.put<Map<String, dynamic>>('/api/reservations/$id', body: input.toJson());
+    final data = await _api.put<Map<String, dynamic>>(
+      '/api/reservations/$id',
+      body: input.toJson(),
+    );
     return Reservation.fromJson(data);
   }
 
   Future<Reservation> changeStatus(String id, ReservationStatus status) async {
-    final data = await _api.patch<Map<String, dynamic>>('/api/reservations/$id/status',
-        body: {'status': status.wire});
+    final data = await _api.patch<Map<String, dynamic>>(
+      '/api/reservations/$id/status',
+      body: {'status': status.wire},
+    );
     return Reservation.fromJson(data);
   }
 
@@ -81,12 +98,15 @@ class ReservationRepository {
     String? note,
     DateTime? paidAt,
   }) async {
-    final data = await _api.post<Map<String, dynamic>>('/api/reservations/$id/payments', body: {
-      'amount': amount,
-      'method': method.wire,
-      'note': note,
-      'paidAt': paidAt?.toUtc().toIso8601String(),
-    });
+    final data = await _api.post<Map<String, dynamic>>(
+      '/api/reservations/$id/payments',
+      body: {
+        'amount': amount,
+        'method': method.wire,
+        'note': note,
+        'paidAt': paidAt?.toUtc().toIso8601String(),
+      },
+    );
     return Reservation.fromJson(data);
   }
 
@@ -96,21 +116,28 @@ class ReservationRepository {
     required int quantity,
     DateTime? consumedAt,
   }) async {
-    final data = await _api.post<Map<String, dynamic>>('/api/reservations/$id/consumptions', body: {
-      'productId': productId,
-      'quantity': quantity,
-      'consumedAt': consumedAt?.toUtc().toIso8601String(),
-    });
+    final data = await _api.post<Map<String, dynamic>>(
+      '/api/reservations/$id/consumptions',
+      body: {
+        'productId': productId,
+        'quantity': quantity,
+        'consumedAt': consumedAt?.toUtc().toIso8601String(),
+      },
+    );
     return Reservation.fromJson(data);
   }
 
   Future<Reservation> removeConsumption(String id, String consumptionId) async {
-    final data = await _api.delete<Map<String, dynamic>>('/api/reservations/$id/consumptions/$consumptionId');
+    final data = await _api.delete<Map<String, dynamic>>(
+      '/api/reservations/$id/consumptions/$consumptionId',
+    );
     return Reservation.fromJson(data);
   }
 
   Future<CheckoutSummary> checkoutSummary(String id) async {
-    final data = await _api.get<Map<String, dynamic>>('/api/reservations/$id/checkout');
+    final data = await _api.get<Map<String, dynamic>>(
+      '/api/reservations/$id/checkout',
+    );
     return CheckoutSummary.fromJson(data);
   }
 
@@ -127,7 +154,10 @@ class ReservationRepository {
             'note': finalNote,
           }
         : null;
-    final data = await _api.post<Map<String, dynamic>>('/api/reservations/$id/checkout', body: body);
+    final data = await _api.post<Map<String, dynamic>>(
+      '/api/reservations/$id/checkout',
+      body: body,
+    );
     return Reservation.fromJson(data);
   }
 }

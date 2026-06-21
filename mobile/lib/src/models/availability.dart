@@ -16,12 +16,12 @@ class Availability {
   });
 
   factory Availability.fromJson(Map<String, dynamic> j) => Availability(
-        domeId: j['domeId'] as String,
-        checkIn: DateTime.parse(j['checkIn'] as String),
-        checkOut: DateTime.parse(j['checkOut'] as String),
-        isAvailable: j['isAvailable'] as bool,
-        conflicts: (j['conflicts'] as List<dynamic>)
-            .map((e) => ReservationSummary.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    domeId: j['domeId'] as String,
+    checkIn: DateTime.parse(j['checkIn'] as String),
+    checkOut: DateTime.parse(j['checkOut'] as String),
+    isAvailable: j['isAvailable'] as bool,
+    conflicts: (j['conflicts'] as List<dynamic>)
+        .map((e) => ReservationSummary.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }

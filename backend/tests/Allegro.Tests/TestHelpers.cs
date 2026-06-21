@@ -43,6 +43,14 @@ public sealed class TestHarness : IDisposable
         _db.Domes.AddRange(
             new Dome { Id = Dome1, Name = "Domo 1", ShortDescription = "Test", MaxCapacity = 4, IsActive = true },
             new Dome { Id = Dome2, Name = "Domo 2", ShortDescription = "Test", MaxCapacity = 4, IsActive = true });
+        _db.ProductCategories.AddRange(
+            ProductCategorySeedData.Initial.Select(c => new ProductCategory
+            {
+                Id = c.Id,
+                Name = c.Name,
+                DisplayOrder = c.Order,
+                IsActive = true,
+            }));
         _db.SaveChanges();
     }
 
@@ -54,12 +62,28 @@ public sealed class TestHarness : IDisposable
 
     public ReservationService Reservations() => new(_db, Clock);
     public ProductService Products() => new(_db);
+    public ProductCategoryService Categories() => new(_db);
 
-    public Product AddProduct(string name, decimal price)
+    public Product AddProduct(string name, decimal price, Guid? categoryId = null)
     {
-        var p = new Product { Name = name, Category = ProductCategory.Other, CurrentPrice = price, IsActive = true };
+        var p = new Product
+        {
+            Name = name,
+            ProductCategoryId = categoryId ?? ProductCategorySeedData.Bebidas,
+            CurrentPrice = price,
+            IsActive = true,
+        };
         _db.Products.Add(p);
         _db.SaveChanges();
         return p;
+    }
+
+    /// <summary>Inserta una categoría (para probar orden / inactivas).</summary>
+    public ProductCategory AddCategory(string name, int order, bool active)
+    {
+        var c = new ProductCategory { Name = name, DisplayOrder = order, IsActive = active };
+        _db.ProductCategories.Add(c);
+        _db.SaveChanges();
+        return c;
     }
 }

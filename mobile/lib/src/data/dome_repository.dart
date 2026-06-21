@@ -6,7 +6,10 @@ class DomeRepository {
   DomeRepository(this._api);
 
   Future<List<Dome>> getAll({bool onlyActive = false}) async {
-    final data = await _api.get<List<dynamic>>('/api/domes', query: {'onlyActive': onlyActive});
+    final data = await _api.get<List<dynamic>>(
+      '/api/domes',
+      query: {'onlyActive': onlyActive},
+    );
     return data.map((e) => Dome.fromJson(e as Map<String, dynamic>)).toList();
   }
 }

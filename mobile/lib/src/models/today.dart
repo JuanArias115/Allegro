@@ -21,16 +21,15 @@ class TodayState {
       currentlyHosted.isEmpty &&
       upcoming.isEmpty;
 
-  static List<ReservationSummary> _list(dynamic raw) =>
-      (raw as List<dynamic>)
-          .map((e) => ReservationSummary.fromJson(e as Map<String, dynamic>))
-          .toList();
+  static List<ReservationSummary> _list(dynamic raw) => (raw as List<dynamic>)
+      .map((e) => ReservationSummary.fromJson(e as Map<String, dynamic>))
+      .toList();
 
   factory TodayState.fromJson(Map<String, dynamic> j) => TodayState(
-        date: DateTime.parse(j['date'] as String),
-        arrivals: _list(j['arrivals']),
-        departures: _list(j['departures']),
-        currentlyHosted: _list(j['currentlyHosted']),
-        upcoming: _list(j['upcoming']),
-      );
+    date: DateTime.parse(j['date'] as String),
+    arrivals: _list(j['arrivals']),
+    departures: _list(j['departures']),
+    currentlyHosted: _list(j['currentlyHosted']),
+    upcoming: _list(j['upcoming']),
+  );
 }

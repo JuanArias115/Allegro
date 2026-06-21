@@ -54,7 +54,10 @@ class FirebaseAuthService extends ChangeNotifier implements AuthService {
 
   @override
   Future<void> signIn(String email, String password) async {
-    await _auth.signInWithEmailAndPassword(email: email.trim(), password: password);
+    await _auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
     notifyListeners();
   }
 

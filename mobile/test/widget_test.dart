@@ -4,7 +4,11 @@ import 'package:allegro/src/models/reservation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-Reservation _sample({double lodging = 400000, double paid = 150000, double consumptions = 0}) {
+Reservation _sample({
+  double lodging = 400000,
+  double paid = 150000,
+  double consumptions = 0,
+}) {
   return Reservation.fromJson({
     'id': 'r1',
     'guestName': 'Ana Demo',
@@ -33,10 +37,12 @@ void main() {
 
   group('Modelos', () {
     test('parsea estado y método desde el wire', () {
-      expect(ReservationStatus.fromWire('CheckedIn'), ReservationStatus.checkedIn);
+      expect(
+        ReservationStatus.fromWire('CheckedIn'),
+        ReservationStatus.checkedIn,
+      );
       expect(ReservationStatus.fromWire('Completed').label, 'Finalizada');
       expect(PaymentMethod.fromWire('Transfer'), PaymentMethod.transfer);
-      expect(ProductCategory.fromWire('Beverages').label, 'Bebidas');
     });
 
     test('estado desconocido cae en un valor por defecto', () {
@@ -52,14 +58,17 @@ void main() {
   });
 
   group('Mensajes de WhatsApp', () {
-    test('la confirmación incluye nombre, domo, fechas, precio, abono y saldo', () {
-      final r = _sample(lodging: 400000, paid: 150000);
-      final msg = WhatsAppMessages.build(WhatsAppTemplate.confirmation, r);
-      expect(msg, contains('Ana Demo'));
-      expect(msg, contains('Domo 1'));
-      expect(msg, contains('Saldo'));
-      expect(msg, contains(r'$'));
-    });
+    test(
+      'la confirmación incluye nombre, domo, fechas, precio, abono y saldo',
+      () {
+        final r = _sample(lodging: 400000, paid: 150000);
+        final msg = WhatsAppMessages.build(WhatsAppTemplate.confirmation, r);
+        expect(msg, contains('Ana Demo'));
+        expect(msg, contains('Domo 1'));
+        expect(msg, contains('Saldo'));
+        expect(msg, contains(r'$'));
+      },
+    );
 
     test('el recordatorio de abono menciona el saldo pendiente', () {
       final r = _sample();
