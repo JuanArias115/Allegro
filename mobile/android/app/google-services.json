@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "54207387771",
+    "project_id": "allegro-95408",
+    "storage_bucket": "allegro-95408.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:54207387771:android:affbc64888261d21232ade",
+        "android_client_info": {
+          "package_name": "com.allegro.allegro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "54207387771-i9fqsds2qks02f8j4gjkje26ni9nal4r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg7N0wbcQOU50ZeLm4wqbTAgM-UFa-HvE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "54207387771-i9fqsds2qks02f8j4gjkje26ni9nal4r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

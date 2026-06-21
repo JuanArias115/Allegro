@@ -1,74 +1,89 @@
-# Configurar Firebase Authentication
+# Firebase Authentication
 
-La app y el backend están preparados para Firebase, pero **no se incluyen credenciales** en el repositorio. Mientras no configures Firebase, usa el **modo local** (`AUTH_MODE=local`), pensado solo para desarrollo.
+La app usa **Firebase Authentication** (proyecto `allegro-95408`). La configuración
+de cliente ya está integrada y **versionada** en el repositorio.
 
-> ⚠️ El modo local **nunca** debe usarse en producción. El backend rechaza arrancar con `AUTH_MODE=local` cuando `ASPNETCORE_ENVIRONMENT=Production`.
+## Qué se versiona y qué NO
 
-## 1. Crear el proyecto de Firebase
+Los archivos de configuración de **cliente** se incluyen en Git porque de todas
+formas quedan embebidos dentro de la app compilada (no son secretos; sus claves
+son públicas y están restringidas por Firebase):
 
-1. Entra a la [consola de Firebase](https://console.firebase.google.com/) y crea un proyecto.
-2. En **Authentication → Sign-in method**, habilita **Correo electrónico/Contraseña** (la app usa email + contraseña).
-3. Crea el usuario operador en **Authentication → Users**.
+- `mobile/lib/firebase_options.dart`
+- `mobile/android/app/google-services.json`
+- `mobile/ios/Runner/GoogleService-Info.plist`
 
-## 2. Configurar la app Flutter
+**NUNCA** se versionan credenciales **administrativas** ni secretos del servidor:
 
-La forma recomendada es usar FlutterFire CLI:
+- JSON de **cuenta de servicio** (service account) de Firebase/Google.
+- Claves privadas (`*.pem`, `*.p12`).
+- Archivos `.env` reales.
+- Tokens y contraseñas.
+
+> El backend valida los tokens de Firebase contra Google usando solo el
+> `FIREBASE_PROJECT_ID`. **No** requiere ni debe contener una cuenta de servicio.
+
+## Proyecto y aplicaciones
+
+| Dato | Valor |
+|---|---|
+| Firebase Project ID | `allegro-95408` |
+| Android `applicationId` | `com.allegro.allegro` |
+| iOS bundle id | `com.allegro.allegro` |
+| Proveedores habilitados | Correo/contraseña, Google |
+
+Requisitos mínimos de plataforma para `firebase_core` 3.x / `firebase_auth` 5.x:
+**Android** `minSdk` ≥ 23 (el proyecto usa 24) y **iOS** ≥ 13 (`platform :ios, '13.0'`).
+
+## Regenerar la configuración (opcional)
+
+`firebase_options.dart` está sincronizado con los archivos nativos. Para
+regenerarlo con FlutterFire (requiere haber iniciado sesión con `firebase login`):
 
 ```bash
 dart pub global activate flutterfire_cli
 cd mobile
-flutterfire configure
+flutterfire configure --project=allegro-95408
 ```
 
-Esto genera:
+Esto reescribe `firebase_options.dart`, `google-services.json` y
+`GoogleService-Info.plist` con los mismos valores de cliente.
 
-- `mobile/lib/firebase_options.dart`
-- `mobile/android/app/google-services.json`
-- `mobile/ios/Runner/GoogleService-Info.plist`
+## Inicialización
 
-Los tres archivos están en `.gitignore` y **no deben subirse**.
-
-Si `flutterfire configure` genera `firebase_options.dart`, ajusta `mobile/lib/main.dart` para pasar las opciones:
+`mobile/lib/main.dart` inicializa Firebase solo en modo Firebase:
 
 ```dart
-import 'firebase_options.dart';
-// ...
-await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+if (AppConfig.isFirebaseAuth) {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+}
 ```
 
-(Por defecto `main.dart` llama a `Firebase.initializeApp()` sin opciones, lo que funciona en Android/iOS cuando existen `google-services.json` / `GoogleService-Info.plist`.)
+Android aplica además el plugin `com.google.gms.google-services` (en
+`android/settings.gradle.kts` y `android/app/build.gradle.kts`) para leer
+`google-services.json`.
 
-### Android
+## Modos de ejecución
 
-`flutterfire`/el plugin de Google Services aplican la configuración automáticamente. Si lo haces manualmente, añade el plugin `com.google.gms.google-services` en `mobile/android` y coloca `google-services.json` en `mobile/android/app/`. Asegúrate de `minSdkVersion >= 23`.
+- **Producción / Firebase:** ver [config de producción](../mobile/config/production.json).
+  ```bash
+  cd mobile
+  flutter run   --dart-define-from-file=config/production.json
+  flutter build apk --release --dart-define-from-file=config/production.json
+  ```
+  Producción usa `AUTH_MODE=firebase` y `API_BASE_URL=https://allegro.juanariasdev.com`.
+  Nunca usa `AUTH_MODE=local` ni `LOCAL_DEV_TOKEN`.
 
-### Ejecutar en modo Firebase
+- **Desarrollo local (sin Firebase):** `AUTH_MODE=local` con el backend local. No
+  debe usarse en producción (el backend lo rechaza en `Production`).
 
-```bash
-flutter run --dart-define=AUTH_MODE=firebase
-```
+## Google Sign-In
 
-## 3. Configurar el backend
-
-El backend valida los **ID tokens** de Firebase contra Google (issuer `https://securetoken.google.com/<projectId>`, audience `<projectId>`). Solo necesita el ID del proyecto:
-
-```env
-AUTH_MODE=firebase
-FIREBASE_PROJECT_ID=tu-proyecto-firebase
-```
-
-No se requiere un archivo de cuenta de servicio para validar tokens. Si en el futuro necesitas operaciones administrativas (Firebase Admin SDK), coloca el JSON de la cuenta de servicio en `backend/secrets/` (ignorado por Git) y referencialo por variable de entorno; nunca lo subas al repositorio.
-
-## 4. Verificar
-
-1. Inicia el backend con `AUTH_MODE=firebase` y `FIREBASE_PROJECT_ID`.
-2. Inicia la app con `--dart-define=AUTH_MODE=firebase`.
-3. Inicia sesión con el usuario creado; la app enviará el ID token y el backend lo validará.
-
-## Resumen de archivos sensibles (nunca versionar)
-
-- `mobile/lib/firebase_options.dart`
-- `mobile/android/app/google-services.json`
-- `mobile/ios/Runner/GoogleService-Info.plist`
-- `backend/secrets/*.json`
-- `.env`
+El proveedor Google está habilitado en Firebase. En la app, el inicio de sesión
+con Google **solo debe mostrarse cuando esté completamente configurado en la
+plataforma** (en Android requiere registrar las huellas SHA‑1/SHA‑256 del
+certificado y volver a descargar `google-services.json`; en iOS, el URL scheme
+con el `REVERSED_CLIENT_ID`). Mientras esa configuración no esté completa, la app
+usa correo y contraseña y no expone el botón de Google.

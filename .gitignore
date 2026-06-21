@@ -6,11 +6,11 @@
 .env.local
 .env.*.local
 
-# ----- Firebase / secrets (NUNCA versionar credenciales) -----
-**/google-services.json
-**/GoogleService-Info.plist
+# ----- Firebase / secrets (NUNCA versionar credenciales administrativas) -----
+# Nota: google-services.json, GoogleService-Info.plist y firebase_options.dart
+# son configuración de CLIENTE (no secreta) y SÍ se versionan: igual quedan
+# embebidos en la app compilada.
 **/firebase-service-account*.json
-**/firebase_options.dart
 backend/secrets/
 *.pem
 *.p12

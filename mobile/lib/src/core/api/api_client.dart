@@ -21,11 +21,21 @@ class ApiClient {
 
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
+        // getToken() (Firebase) entrega un ID token vigente y lo refresca
+        // automáticamente cuando está por expirar.
         final token = await auth.getToken();
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
         }
         handler.next(options);
+      },
+      onError: (e, handler) {
+        // 401: el token no es válido. Cerramos la sesión para que el router
+        // redirija al flujo de autenticación (login).
+        if (e.response?.statusCode == 401 && auth.isAuthenticated) {
+          auth.signOut();
+        }
+        handler.next(e);
       },
     ));
 

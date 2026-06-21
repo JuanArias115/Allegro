@@ -1,0 +1,4 @@
+{
+  "AUTH_MODE": "firebase",
+  "API_BASE_URL": "https://allegro.juanariasdev.com"
+}
