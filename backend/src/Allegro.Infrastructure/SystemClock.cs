@@ -28,4 +28,10 @@ public class SystemClock : IClock
 
     public DateOnly Today =>
         DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _tz));
+
+    public DateOnly ToBusinessDate(DateTime utc)
+    {
+        var asUtc = utc.Kind == DateTimeKind.Utc ? utc : DateTime.SpecifyKind(utc, DateTimeKind.Utc);
+        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(asUtc, _tz));
+    }
 }

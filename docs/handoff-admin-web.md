@@ -20,8 +20,8 @@ Flutter sigue siendo la herramienta operativa móvil. La web es administración/
 
 1. ✅ **Backend seguridad + roles + auditoría** (commit `3e69469`).
 2. ✅ **DomeBlock** (bloqueo de fechas) (commit `dee96f8`).
-3. ✅ **Usuarios Firebase** (Firebase Admin SDK, abstracción, endpoints, bootstrap CLI) — ver estado abajo.
-4. ⬜ **Reportes** (/api/admin/reports/* + CSV).
+3. ✅ **Usuarios Firebase** (Firebase Admin SDK, abstracción, endpoints, bootstrap CLI) (commit `5918112`).
+4. ✅ **Reportes** (/api/admin/reports/* + CSV) + **categorías admin** — ver estado abajo.
 5. ⬜ **Angular base** (proyecto admin-web, tema, auth Firebase, guards, interceptor, shell).
 6. ⬜ **Módulos admin** (dashboard, calendario, reservas, domos, productos+categorías, usuarios, reportes, configuración).
 7. ⬜ **Pruebas + docs + Docker/CI web**.
@@ -66,11 +66,20 @@ Flutter sigue siendo la herramienta operativa móvil. La web es administración/
 - CLI `bootstrap-admin` en `Allegro.Api/Bootstrap/BootstrapAdminCommand.cs`, conectado en Program antes de migraciones/Run. Uso: `dotnet run --project src/Allegro.Api -- bootstrap-admin --email x@y.com` (o `--uid`). Idempotente, requiere AUTH_MODE=firebase + creds, solo imprime UID enmascarado.
 - Tests `AdminUserTests.cs` con fakes en `tests/.../Fakes/` (FakeFirebaseUserManagementService, FakeAuditLogService, FakeCurrentUser). NO tocan Firebase real.
 
+### Bloque 4 — Reportes + categorías admin
+- `IClock.ToBusinessDate(DateTime utc)` agregado (SystemClock convierte con la tz; FakeClock usa UTC-5).
+- DTOs `ReportDtos.cs` (ReportSummaryDto, OccupancyReportDto/OccupancyByDomeDto, PaymentsReportDto/PaymentBucketDto, ProductsReportDto/ProductSalesDto) con definiciones documentadas en XML doc.
+- `ReportService` (Application): GetSummary/GetOccupancy/GetPayments/GetProducts. Rango [from,to). Ocupación por noches de solapamiento (sin doble conteo de meses); reservas atribuidas por CheckIn; canceladas fuera de ocupación/valor pero pagos reales sí cuentan; montos decimal; pagos/consumos agrupados por fecha Bogota.
+- `ReportCsv.Build(...)` helper en Application (testeable sin AspNetCore). `AdminReportsController` (`/api/admin/reports/*`, Admin) usa el servicio + helper; export.csv con BOM UTF-8.
+- **Categorías admin (aditivo, no rompe Flutter):** `ProductCategoryService` ahora tiene GetAllAsync/CreateAsync/UpdateAsync (valida nombre único, no desactivar con productos activos). `AdminProductCategoriesController` (`/api/admin/product-categories`, Admin): GET all, POST, PUT. El GET público `/api/product-categories` (activas) NO cambió.
+- Validador `UpsertProductCategoryValidator`. DTO `UpsertProductCategoryDto`.
+- Tests `ReportTests.cs` (8) y `CategoryAdminTests.cs` (5).
+
 ## Pendiente inmediato (donde retomar)
-- **Bloque 4 Reportes**: servicio de reportes (Application) + endpoints `/api/admin/reports/summary|occupancy|payments|products|export.csv` (`[Authorize(Policy=Admin)]`). Cálculos en backend con `decimal`, fechas con `IClock`/America/Bogota, rango inicio-inclusivo/fin-exclusivo. Ocupación: noches ocupadas por domo sin doble conteo de meses; excluir canceladas de ocupación e ingreso esperado; reflejar pagos reales aunque la reserva se cancelara después. Separar Valor reservado / Dinero recibido / Saldo pendiente. CSV export. Tests: sin datos, con canceladas, reservas que cruzan meses, pagos parciales, productos vendidos, ocupación, CSV.
-- Endpoints admin de **categorías** (POST/PATCH crear/editar/reordenar/activar) — extiende ProductCategoryService sin romper el GET actual (usado por Flutter). Necesario para el módulo Productos+Categorías de la web.
-- Faltan pruebas de **autorización** a nivel Api (admin/operator/sin claims) — requieren WebApplicationFactory (Program es partial public). Pendiente para fase de pruebas.
+- Faltan pruebas de **autorización** a nivel Api (admin/operator/sin claims) — requieren WebApplicationFactory (Program es partial public) + Microsoft.AspNetCore.Mvc.Testing en el test csproj. Pendiente para fase de pruebas (Bloque 7).
 - **Bloques 5-7 (Angular)**: proyecto `admin-web/` completo. Es el grueso restante; planear sesión dedicada. Ver sección TECNOLOGÍA/DISEÑO del prompt original.
+- **Resumen de endpoints nuevos backend** (todos bajo /api): `GET/POST/DELETE /dome-blocks` (Operator); `GET/POST/PATCH /admin/users[...]` (Admin, rate-limited); `GET /admin/reports/{summary,occupancy,payments,products,export.csv}` (Admin); `GET/POST/PUT /admin/product-categories` (Admin). Sin cambios de contrato salvo `AvailabilityDto.BlockedRanges` (aditivo).
+- **Variables de entorno nuevas**: `Authorization__RequireAppAccessClaim` (default false), `Cors__AllowedOrigins__0..n`, `LOCAL_DEV_ROLE` (dev), `GOOGLE_APPLICATION_CREDENTIALS` (prod, montar secreto), `FIREBASE_PROJECT_ID` (ya existía).
 
 ## Restricciones (recordatorio)
 No TRA. No secretos en git. No cambiar credenciales. No desplegar. No push a main. No romper Flutter. Documentar cambios de contrato. No datos demo en prod. Nada contable avanzado. No borrar históricos.

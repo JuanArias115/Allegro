@@ -71,6 +71,15 @@ public class UpsertDomeValidator : AbstractValidator<UpsertDomeDto>
     }
 }
 
+public class UpsertProductCategoryValidator : AbstractValidator<UpsertProductCategoryDto>
+{
+    public UpsertProductCategoryValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(80);
+        RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo(0);
+    }
+}
+
 public class CreateDomeBlockValidator : AbstractValidator<CreateDomeBlockDto>
 {
     public CreateDomeBlockValidator()
