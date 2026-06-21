@@ -22,9 +22,35 @@ Flutter sigue siendo la herramienta operativa móvil. La web es administración/
 2. ✅ **DomeBlock** (bloqueo de fechas) (commit `dee96f8`).
 3. ✅ **Usuarios Firebase** (Firebase Admin SDK, abstracción, endpoints, bootstrap CLI) (commit `5918112`).
 4. ✅ **Reportes** (/api/admin/reports/* + CSV) + **categorías admin** — ver estado abajo.
-5. ⬜ **Angular base** (proyecto admin-web, tema, auth Firebase, guards, interceptor, shell).
-6. ⬜ **Módulos admin** (dashboard, calendario, reservas, domos, productos+categorías, usuarios, reportes, configuración).
-7. ⬜ **Pruebas + docs + Docker/CI web**.
+5. ✅ **Angular base** (proyecto admin-web, tema, auth Firebase, guards, interceptor, shell) (commit `43d5905`).
+6. ⬜ **Módulos admin** (dashboard, calendario, reservas, domos, productos+categorías, usuarios, reportes, configuración) — placeholders listos, falta conectar al backend.
+7. ⬜ **Pruebas Angular adicionales + docs README + Docker/Nginx/CI web**.
+
+## Angular (admin-web/) — stack y comandos
+- **Angular 21**, standalone, **zoneless**, signals, TS estricto, SCSS. **Tests con vitest** (no Karma): `npx ng test --watch=false`. Build: `npx ng build`. Dev: `npx ng serve` (usa environment.development.ts vía fileReplacements).
+- Node 24 / Angular CLI 21 disponibles localmente (sin docker).
+- Material **sin** @angular/animations (no instalado; quité `provideAnimationsAsync`). Botones con API clásica (`mat-flat-button`, `mat-stroked-button`, `mat-icon-button`).
+- Iconos: link a Material Icons en index.html. Fuente: stack de sistema.
+- Estructura: `core/` (auth/, http/, api/, models/), `shared/ui/` (skeleton, empty, error, status-chip), `layout/shell`, `features/<seccion>/`. Rutas en `app.routes.ts` (lazy + guards). Config Firebase en `src/environments/` (PLACEHOLDERS — reemplazar valores reales).
+- ApiService (`core/api/api.service.ts`) ya tiene get/post/put/patch/delete/getBlob sobre apiBaseUrl; el authInterceptor adjunta el Bearer.
+
+### Bloque 6 — cómo conectar cada módulo (pendiente)
+Crear servicios de datos por feature usando ApiService y los modelos de `core/models/models.ts`:
+- Dashboard → `GET /api/today` + `GET /api/admin/reports/summary` (mes actual) para saldos/pagos/ocupación.
+- Calendario → `GET /api/reservations` (rango), `GET /api/availability`, `GET/POST/DELETE /api/dome-blocks`. Vista mes/agenda, chips por estado.
+- Reservas → CRUD `/api/reservations`, status, pagos `/payments`, consumos `/consumptions`, checkout.
+- Domos → `GET /api/domes`, `PUT /api/domes/{id}` (nombre/capacidad/activo; SIN precio base).
+- Productos+Categorías → `GET /api/products`, `POST/PUT /api/products`; categorías admin `GET/POST/PUT /api/admin/product-categories`.
+- Usuarios → `/api/admin/users[...]` (list/buscar/crear/patch/activation-link/revoke/status). Mostrar UID parcial, copiar enlace.
+- Reportes → `/api/admin/reports/{summary,occupancy,payments,products,export.csv}`. Gráficas con echarts (wrapper propio). Tarjetas separando Valor reservado / Dinero recibido / Saldo pendiente.
+- Configuración → mostrar estado de RequireAppAccessClaim y datos básicos.
+
+### Bloque 7 — pendiente
+- Pruebas Angular: interceptor, estados carga/error, formulario de usuario, confirmación de bloqueo, reportes vacíos, métricas, permisos admin/operator.
+- Lint: `ng add @angular-eslint/schematics` + `npx ng lint`.
+- Dockerfile multi-stage (build Angular → Nginx static) + health check + config de API en runtime (env.js) + workflow CI Angular en `.github/workflows/`.
+- Pruebas de autorización backend (WebApplicationFactory): admin/operator/sin claims.
+- README: requisitos, dev local, Firebase Web/Admin, variables, bootstrap, pruebas, build, roles/permisos, activar RequireAppAccessClaim, definiciones de reportes.
 
 ## Estado del backend tras Bloque 1 y 2
 
