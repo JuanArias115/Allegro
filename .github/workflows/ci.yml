@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restaurar
+        run: dotnet restore backend/Allegro.sln
+
+      - name: Compilar
+        run: dotnet build backend/Allegro.sln -c Release --no-restore
+
+      - name: Pruebas
+        run: dotnet test backend/Allegro.sln -c Release --no-build --verbosity normal

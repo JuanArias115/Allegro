@@ -141,6 +141,55 @@ La app ya está preparada para Firebase Authentication. Ver **[docs/firebase.md]
 - **Moneda COP** con formato `es_CO`.
 - **Modelos inmutables** y mapeo manual en Flutter (sin generación de código) para mantener el proyecto simple.
 
-## Estado del despliegue
+## Despliegue en producción (solo backend)
 
-Este repositorio **no incluye despliegue en producción** (por diseño). Todo está preparado para correr localmente con Docker Compose.
+El backend se despliega automáticamente por **GitHub Actions** a un servidor Linux con Docker. El frontend Flutter no se despliega aquí.
+
+### Flujo
+
+- **CI** (`.github/workflows/ci.yml`) — en cada Pull Request: restaura, compila y ejecuta las pruebas .NET.
+- **Deploy** (`.github/workflows/deploy.yml`) — en cada push a `main`:
+  1. Ejecuta las pruebas .NET (si fallan, no despliega).
+  2. Construye la imagen y la publica en GHCR con las etiquetas `latest` y el SHA del commit: `ghcr.io/juanarias115/allegro-api`.
+  3. Entra por SSH al servidor (secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_PORT`, `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`), copia `deploy/` a `/opt/allegro`, hace `docker compose pull` + `up -d` y **espera el health check**. Si `/health/ready` no responde correctamente, el despliegue falla.
+- Permisos del workflow: `contents: read`, `packages: write`.
+
+### Servidor (`/opt/allegro`)
+
+- `docker-compose.production.yml` — servicios `allegro-api` (imagen de GHCR, **no compila** en el servidor) y `allegro-db` (PostgreSQL 16). PostgreSQL en volumen persistente, **sin publicar el 5432**; la API **no publica puertos**, solo expone el `8080` interno y se conecta a la red externa `allegro_ingress` para que el proxy la alcance por el nombre `allegro-api`.
+- `.env` — secretos de producción (cadena de conexión, contraseña de PostgreSQL, `FIREBASE_PROJECT_ID`, etc.). **No se versiona.** Plantilla: [`deploy/.env.production.example`](deploy/.env.production.example).
+
+### Variables de entorno (producción)
+
+| Variable | Descripción |
+|---|---|
+| `IMAGE_TAG` | Imagen a desplegar (el pipeline la fija al SHA). |
+| `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` | Base de datos PostgreSQL. |
+| `ConnectionStrings__Default` | Conexión de la API (host = `allegro-db`). |
+| `APPLY_MIGRATIONS` | `true` → aplica migraciones al iniciar (idempotente). |
+| `AUTH_MODE` | **Siempre `firebase`** en producción (el backend rechaza `local`). |
+| `FIREBASE_PROJECT_ID` | Proyecto de Firebase para validar los tokens. |
+| `BUSINESS_TIMEZONE` | Zona horaria del negocio (ej. `America/Bogota`). |
+
+`SEED_DEMO_DATA` se fuerza a `false` en el Compose de producción. Para Firebase, ver también [docs/firebase.md](docs/firebase.md).
+
+### Rollback
+
+Para volver a una versión anterior, en el servidor:
+
+```bash
+cd /opt/allegro
+bash rollback.sh <SHA-anterior>   # reusa la imagen ya publicada en GHCR
+```
+
+`rollback.sh` fija ese tag, hace `pull` + `up -d` y espera el health check.
+
+### Preparación inicial del servidor (una sola vez)
+
+```bash
+sudo mkdir -p /opt/allegro
+# copiar deploy/.env.production.example -> /opt/allegro/.env y completar valores
+docker network create allegro_ingress   # si aún no existe
+```
+
+> El despliegue automático aún **no se ha ejecutado**; el repositorio queda preparado. Nginx se conecta manualmente después (no se modifica aquí).

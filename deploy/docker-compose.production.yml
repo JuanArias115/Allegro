@@ -1,0 +1,78 @@
+# Compose de PRODUCCIÓN de Allegro.
+# Se ejecuta en el servidor desde /opt/allegro, leyendo /opt/allegro/.env.
+# NO compila: usa la imagen publicada en GHCR por el pipeline.
+#
+#   docker compose -f docker-compose.production.yml pull
+#   docker compose -f docker-compose.production.yml up -d
+#
+# El proxy (Nginx) alcanza a la API por el nombre de contenedor `allegro-api`
+# en la red externa `allegro_ingress`, puerto interno 8080. No se publica
+# ningún puerto al host.
+
+services:
+  allegro-db:
+    image: postgres:16-alpine
+    container_name: allegro-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - allegro-db-data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  allegro-api:
+    image: ghcr.io/juanarias115/allegro-api:${IMAGE_TAG:-latest}
+    container_name: allegro-api
+    restart: unless-stopped
+    depends_on:
+      allegro-db:
+        condition: service_healthy
+    # Lee secretos (cadena de conexión, Firebase, etc.) desde /opt/allegro/.env
+    env_file:
+      - .env
+    environment:
+      # Valores fijos de producción (tienen prioridad sobre el .env).
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      # Las migraciones se aplican de forma segura al arrancar (idempotente).
+      APPLY_MIGRATIONS: ${APPLY_MIGRATIONS:-true}
+      # Datos de demostración: PROHIBIDOS en producción.
+      SEED_DEMO_DATA: "false"
+      # Autenticación: producción siempre Firebase (el backend rechaza 'local').
+      AUTH_MODE: ${AUTH_MODE:-firebase}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      BUSINESS_TIMEZONE: ${BUSINESS_TIMEZONE:-America/Bogota}
+    # Solo se expone el puerto interno; NO se publica al host.
+    expose:
+      - "8080"
+    networks:
+      - internal
+      - allegro_ingress
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health/ready || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  # Red privada api <-> db (no expuesta).
+  internal:
+    driver: bridge
+  # Red del proxy, creada por separado en el servidor.
+  allegro_ingress:
+    external: true
+
+volumes:
+  allegro-db-data:
