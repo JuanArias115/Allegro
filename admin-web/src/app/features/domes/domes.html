@@ -1,0 +1,51 @@
+<section class="app-page">
+  <h1 class="app-page__title">Domos</h1>
+
+  @if (loading()) {
+    <div class="grid">
+      <app-skeleton [height]="160" />
+      <app-skeleton [height]="160" />
+    </div>
+  } @else if (error()) {
+    <app-error-state (retry)="reload()" />
+  } @else {
+    <div class="grid">
+      @for (row of rows(); track row.dome.id) {
+        <div class="dome" [class.dome--off]="!row.dome.isActive">
+          <div class="dome__head">
+            <div>
+              <div class="dome__name">{{ row.dome.name }}</div>
+              <div class="dome__desc">{{ row.dome.shortDescription || 'Sin descripción' }}</div>
+            </div>
+            <button mat-icon-button (click)="edit(row.dome)" aria-label="Editar domo">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+
+          <div class="dome__meta">
+            <span class="pill"><mat-icon>group</mat-icon> {{ row.dome.maxCapacity }} pers.</span>
+            <span class="pill" [class.pill--on]="row.dome.isActive" [class.pill--off]="!row.dome.isActive">
+              {{ row.dome.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
+            <span class="pill" [class.pill--busy]="row.occupiedNow">
+              {{ row.occupiedNow ? 'Ocupado ahora' : 'Libre ahora' }}
+            </span>
+          </div>
+
+          <div class="dome__next">
+            <span class="dome__next-label">Próxima reserva</span>
+            @if (row.next) {
+              <div class="dome__next-row">
+                <span>{{ row.next.guestName }}</span>
+                <span class="muted">{{ row.next.checkIn | date: 'mediumDate' }}</span>
+                <app-status-chip [status]="row.next.status" />
+              </div>
+            } @else {
+              <span class="muted">Sin reservas próximas</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

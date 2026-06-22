@@ -1,0 +1,56 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar reserva' : 'Nueva reserva' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="form form--wide">
+    <mat-form-field appearance="outline">
+      <mat-label>Huésped</mat-label>
+      <input matInput formControlName="guestName" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Teléfono</mat-label>
+      <input matInput formControlName="phone" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Domo</mat-label>
+      <mat-select formControlName="domeId">
+        @for (d of data.domes; track d.id) {
+          <mat-option [value]="d.id">{{ d.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Huéspedes</mat-label>
+      <input matInput type="number" formControlName="guestCount" min="1" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Llegada</mat-label>
+      <input matInput type="date" formControlName="checkIn" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Salida</mat-label>
+      <input matInput type="date" formControlName="checkOut" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="span-2">
+      <mat-label>Precio de alojamiento (COP)</mat-label>
+      <input matInput type="number" formControlName="lodgingPrice" min="0" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="span-2">
+      <mat-label>Notas</mat-label>
+      <textarea matInput formControlName="notes" rows="2"></textarea>
+    </mat-form-field>
+
+    @if (error()) {
+      <div class="form__error span-2">{{ error() }}</div>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="saving()">Guardar</button>
+</mat-dialog-actions>

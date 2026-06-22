@@ -127,6 +127,23 @@ a {
   font-size: 0.86rem;
 }
 
+// Formulario en 2 columnas para diálogos más anchos.
+.form--wide {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-2) var(--sp-3);
+  min-width: 520px;
+}
+.form--wide .span-2 {
+  grid-column: 1 / -1;
+}
+@media (max-width: 600px) {
+  .form--wide {
+    grid-template-columns: 1fr;
+    min-width: auto;
+  }
+}
+
 // Encabezado de página con acción a la derecha.
 .page-head {
   display: flex;
