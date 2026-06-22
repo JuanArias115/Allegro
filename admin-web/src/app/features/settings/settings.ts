@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/auth/auth.service';
-import { environment } from '../../../environments/environment';
+import { runtimeConfig } from '../../core/config/runtime-config';
 
 @Component({
   selector: 'app-settings',
@@ -13,6 +13,6 @@ import { environment } from '../../../environments/environment';
 export class Settings {
   private readonly auth = inject(AuthService);
   protected readonly user = this.auth.user;
-  protected readonly apiBaseUrl = environment.apiBaseUrl;
-  protected readonly firebaseProject = environment.firebase.projectId;
+  protected readonly apiBaseUrl = runtimeConfig.apiBaseUrl;
+  protected readonly firebaseProject = runtimeConfig.firebase.projectId;
 }

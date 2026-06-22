@@ -39,9 +39,10 @@ npm run lint     # eslint
 La configuración **pública** de Firebase Web va en `admin-web/src/environments/`:
 - `environment.ts` (producción) y `environment.development.ts` (desarrollo).
 
-Reemplaza los placeholders (`REPLACE_WITH_...`) con los valores reales del proyecto
-(Consola Firebase → Configuración del proyecto → Tus apps → SDK). Es el **mismo proyecto** que usa
-Flutter. **No** se guardan credenciales administrativas ni archivos service-account en el frontend.
+En desarrollo se pueden reemplazar los placeholders de `environment.development.ts`. En producción
+no es necesario recompilar: el contenedor genera `config.json` desde las variables públicas
+`FIREBASE_WEB_*` de `/opt/allegro/.env`. Es el **mismo proyecto** que usa Flutter. **No** se guardan
+credenciales administrativas ni archivos service-account en el frontend.
 
 `googleAuthEnabled` activa el botón de Google (solo funciona si Google está habilitado como proveedor
 en Firebase Authentication).
@@ -86,9 +87,10 @@ stub seguro que no expone nada).
 | `BUSINESS_TIMEZONE` | Zona del negocio, default `America/Bogota`. |
 
 ### Frontend (runtime)
-La imagen Docker de `admin-web` acepta `API_BASE_URL` en runtime: el entrypoint escribe
-`config.json` y la app lo carga al arrancar (sin recompilar). Si no se define, usa el valor de
-`environment.ts`.
+La imagen Docker de `admin-web` acepta `API_BASE_URL`, `GOOGLE_AUTH_ENABLED` y
+`FIREBASE_WEB_{API_KEY,AUTH_DOMAIN,PROJECT_ID,STORAGE_BUCKET,MESSAGING_SENDER_ID,APP_ID}`. El
+entrypoint escribe `config.json` y la app lo carga antes de inicializar Firebase. Si falta algún
+valor Firebase, el arranque del frontend falla explícitamente en lugar de usar placeholders.
 
 ## Roles y permisos
 
@@ -149,7 +151,8 @@ Cálculos en el backend (la web no descarga todas las reservas).
 - **Cancelaciones**: reservas canceladas con CheckIn en el rango.
 - **Noches ocupadas (ocupación)**: suma de **noches de solapamiento** entre cada estadía no cancelada
   y el rango (conteo por noche; una reserva que cruza meses aporta a cada mes solo sus noches reales).
-- **Noches disponibles**: `domos activos × noches del rango`.
+- **Noches disponibles**: `domos activos × noches del rango`, descontando las noches bloqueadas
+  por mantenimiento o uso personal.
 - **Porcentaje de ocupación**: `noches ocupadas / noches disponibles`.
 - **Pagos recibidos**: pagos cuya fecha (Bogotá) cae en el rango, **independiente** del estado de la
   reserva (un pago válido cuenta aunque la reserva se cancele después).
@@ -173,11 +176,15 @@ Cambio de contrato (aditivo, no rompe Flutter): `AvailabilityDto` incluye `block
 
 Migraciones nuevas: `AdminAuditLog` (tabla `audit_logs`), `DomeBlocks` (tabla `dome_blocks`).
 
-## Despliegue posterior (no automatizado)
+## Despliegue automático
 
-El frontend **no** tiene despliegue automático. Para desplegarlo más adelante:
-1. `docker build -t allegro-admin-web admin-web/`.
-2. Ejecutar con `-e API_BASE_URL=https://<backend>` y servir tras Nginx/Cloudflare en el subdominio
-   elegido (configurar DNS/Nginx/Cloudflare es un paso aparte, fuera de este trabajo).
-3. Backend: añadir el origen de la web a `Cors__AllowedOrigins`, configurar `AUTH_MODE=firebase`,
-   `FIREBASE_PROJECT_ID` y montar el secreto de Firebase Admin. Ejecutar el bootstrap del primer admin.
+`deploy-admin.yml` verifica Angular, construye `ghcr.io/juanarias115/allegro-admin:<sha>` y despliega
+por SSH cuando cambia `admin-web/**` en `main`. El servidor usa
+`deploy/docker-compose.admin.yml` y mantiene el contenedor únicamente en `allegro_ingress`, sin
+publicar puertos al host. El proxy compartido expone `admin.allegro.juanariasdev.com` con HTTPS.
+
+Antes del primer despliegue:
+1. Registrar `admin.allegro.juanariasdev.com` en DNS y Firebase Authorized domains.
+2. Completar las variables `FIREBASE_WEB_*` y `Cors__AllowedOrigins__0` en `/opt/allegro/.env`.
+3. Montar el secreto Firebase Admin en la API y ejecutar el bootstrap del primer admin.
+4. Instalar el bloque Nginx versionado en `deploy/nginx/allegro-admin.conf` dentro del proxy real.

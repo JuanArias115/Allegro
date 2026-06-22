@@ -12,8 +12,8 @@ import {
   type Auth,
   type User,
 } from 'firebase/auth';
-import { environment } from '../../../environments/environment';
 import type { Role } from '../models/models';
+import { runtimeConfig } from '../config/runtime-config';
 
 export interface SessionUser {
   uid: string;
@@ -30,7 +30,7 @@ export interface SessionUser {
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly app: FirebaseApp = initializeApp(environment.firebase);
+  private readonly app: FirebaseApp = initializeApp(runtimeConfig.firebase);
   private readonly auth: Auth = getAuth(this.app);
 
   private readonly _user = signal<SessionUser | null>(null);

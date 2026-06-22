@@ -1,4 +1,7 @@
-# AdminWeb
+# Allegro Admin
+
+Aplicación administrativa Angular. La guía completa de arquitectura, Firebase, roles y despliegue
+está en [`../docs/admin-web.md`](../docs/admin-web.md).
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.5.
 
@@ -53,6 +56,12 @@ ng e2e
 ```
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Configuración del contenedor
+
+La imagen no compila valores de producción. Al arrancar, `docker-entrypoint.sh` genera
+`config.json` usando `API_BASE_URL`, `GOOGLE_AUTH_ENABLED` y las variables públicas
+`FIREBASE_WEB_*`. Las credenciales Firebase Admin nunca pertenecen a este contenedor.
 
 ## Additional Resources
 

@@ -112,6 +112,26 @@ public class ReportTests
     }
 
     [Fact]
+    public async Task Dome_blocks_reduce_available_nights()
+    {
+        var h = new TestHarness();
+        var from = new DateOnly(2026, 7, 1);
+        var to = new DateOnly(2026, 7, 11); // 10 noches × 2 domos
+        await h.Blocks().CreateAsync(new CreateDomeBlockDto(
+            TestHarness.Dome1,
+            new DateOnly(2026, 7, 3),
+            new DateOnly(2026, 7, 6),
+            "Mantenimiento"));
+
+        var occ = await h.Reports().GetOccupancyAsync(from, to);
+        var summary = await h.Reports().GetSummaryAsync(from, to);
+
+        occ.AvailableNights.Should().Be(17);
+        summary.AvailableNights.Should().Be(17);
+        occ.Domes.Single(d => d.DomeId == TestHarness.Dome1).AvailableNights.Should().Be(7);
+    }
+
+    [Fact]
     public async Task Csv_export_contains_summary_rows()
     {
         var h = new TestHarness();

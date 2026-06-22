@@ -3,6 +3,9 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
+# package-lock.json fue generado con la versión declarada en packageManager.
+# Node 22 Alpine incluye npm 10, que no resuelve el lock de npm 11 de forma idéntica.
+RUN npm install --global npm@11.6.2
 RUN npm ci
 
 COPY . .

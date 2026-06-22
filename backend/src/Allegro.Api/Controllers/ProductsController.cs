@@ -1,5 +1,6 @@
 using Allegro.Application.Dtos;
 using Allegro.Application.Services;
+using Allegro.Api.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = Policies.Admin)]
     public async Task<ActionResult<ProductDto>> Create(UpsertProductDto dto, CancellationToken ct)
     {
         var created = await _service.CreateAsync(dto, ct);
@@ -33,6 +35,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = Policies.Admin)]
     public async Task<ActionResult<ProductDto>> Update(Guid id, UpsertProductDto dto, CancellationToken ct)
         => Ok(await _service.UpdateAsync(id, dto, ct));
 }

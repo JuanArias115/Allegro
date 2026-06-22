@@ -78,4 +78,30 @@ public class AuthorizationTests
 
         res.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
+
+    [Theory]
+    [InlineData("/api/domes/00000000-0000-0000-0000-000000000001")]
+    [InlineData("/api/products/00000000-0000-0000-0000-000000000001")]
+    public async Task Configuration_writes_require_admin(string url)
+    {
+        using var f = Factory("operator");
+        var client = Authed(f);
+
+        var res = await client.PutAsync(url, new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
+
+        res.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Product_creation_requires_admin()
+    {
+        using var f = Factory("operator");
+        var client = Authed(f);
+
+        var res = await client.PostAsync(
+            "/api/products",
+            new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
+
+        res.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
 }

@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/auth/auth.service';
-import { environment } from '../../../environments/environment';
+import { runtimeConfig } from '../../core/config/runtime-config';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +29,7 @@ export class Login {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  protected readonly googleEnabled = environment.googleAuthEnabled;
+  protected readonly googleEnabled = runtimeConfig.googleAuthEnabled;
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
 

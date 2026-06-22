@@ -35,7 +35,11 @@ public class ReportService : IReportService
         var rangeNights = to.DayNumber - from.DayNumber;
 
         var reservations = await LoadOverlappingReservationsAsync(from, to, ct);
-        var domeCount = await _db.Domes.AsNoTracking().CountAsync(d => d.IsActive, ct);
+        var activeDomeIds = await _db.Domes.AsNoTracking()
+            .Where(d => d.IsActive)
+            .Select(d => d.Id)
+            .ToListAsync(ct);
+        var blocks = await LoadOverlappingBlocksAsync(from, to, ct);
 
         var nonCancelled = reservations.Where(r => r.Status != ReservationStatus.Cancelled).ToList();
 
@@ -50,7 +54,10 @@ public class ReportService : IReportService
 
         // Ocupación: noches de solapamiento (sin doble conteo entre meses).
         var occupiedNights = nonCancelled.Sum(r => OverlapNights(r.CheckIn, r.CheckOut, from, to));
-        var availableNights = domeCount * rangeNights;
+        var blockedNights = blocks
+            .Where(b => activeDomeIds.Contains(b.DomeId))
+            .Sum(b => OverlapNights(b.StartDate, b.EndDate, from, to));
+        var availableNights = Math.Max(0, activeDomeIds.Count * rangeNights - blockedNights);
         var occupancyRate = Rate(occupiedNights, availableNights);
 
         var paymentsReceived = await SumPaymentsAsync(from, to, ct);
@@ -75,19 +82,26 @@ public class ReportService : IReportService
         EnsureRange(from, to);
         var rangeNights = to.DayNumber - from.DayNumber;
 
-        var domes = await _db.Domes.AsNoTracking().OrderBy(d => d.Name).ToListAsync(ct);
+        var domes = await _db.Domes.AsNoTracking()
+            .Where(d => d.IsActive)
+            .OrderBy(d => d.Name)
+            .ToListAsync(ct);
         var reservations = await LoadOverlappingReservationsAsync(from, to, ct);
         var active = reservations.Where(r => r.Status != ReservationStatus.Cancelled).ToList();
+        var blocks = await LoadOverlappingBlocksAsync(from, to, ct);
 
         var perDome = domes.Select(d =>
         {
             var occupied = active.Where(r => r.DomeId == d.Id)
                 .Sum(r => OverlapNights(r.CheckIn, r.CheckOut, from, to));
-            return new OccupancyByDomeDto(d.Id, d.Name, occupied, rangeNights, Rate(occupied, rangeNights));
+            var blocked = blocks.Where(b => b.DomeId == d.Id)
+                .Sum(b => OverlapNights(b.StartDate, b.EndDate, from, to));
+            var available = Math.Max(0, rangeNights - blocked);
+            return new OccupancyByDomeDto(d.Id, d.Name, occupied, available, Rate(occupied, available));
         }).ToList();
 
         var totalOccupied = perDome.Sum(d => d.OccupiedNights);
-        var totalAvailable = domes.Count(d => d.IsActive) * rangeNights;
+        var totalAvailable = perDome.Sum(d => d.AvailableNights);
 
         return new OccupancyReportDto(from, to, totalOccupied, totalAvailable, Rate(totalOccupied, totalAvailable), perDome);
     }
@@ -134,6 +148,11 @@ public class ReportService : IReportService
             .Where(r => r.CheckIn < to && from < r.CheckOut)
             .ToListAsync(ct);
     }
+
+    private Task<List<DomeBlock>> LoadOverlappingBlocksAsync(DateOnly from, DateOnly to, CancellationToken ct) =>
+        _db.DomeBlocks.AsNoTracking()
+            .Where(b => b.StartDate < to && from < b.EndDate)
+            .ToListAsync(ct);
 
     private async Task<decimal> SumPaymentsAsync(DateOnly from, DateOnly to, CancellationToken ct)
     {

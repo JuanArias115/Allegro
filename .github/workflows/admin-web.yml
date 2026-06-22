@@ -28,6 +28,8 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: admin-web/package-lock.json
+      - name: Usar la versión de npm declarada por el proyecto
+        run: npm install --global npm@11.6.2
       - name: Instalar dependencias
         run: npm ci
       - name: Lint
