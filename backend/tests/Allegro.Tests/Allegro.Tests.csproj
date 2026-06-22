@@ -16,12 +16,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Allegro.Application\Allegro.Application.csproj" />
     <ProjectReference Include="..\..\src\Allegro.Domain\Allegro.Domain.csproj" />
     <ProjectReference Include="..\..\src\Allegro.Infrastructure\Allegro.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Allegro.Api\Allegro.Api.csproj" />
   </ItemGroup>
 
 </Project>

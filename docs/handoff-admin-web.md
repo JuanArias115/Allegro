@@ -23,8 +23,10 @@ Flutter sigue siendo la herramienta operativa móvil. La web es administración/
 3. ✅ **Usuarios Firebase** (Firebase Admin SDK, abstracción, endpoints, bootstrap CLI) (commit `5918112`).
 4. ✅ **Reportes** (/api/admin/reports/* + CSV) + **categorías admin** — ver estado abajo.
 5. ✅ **Angular base** (proyecto admin-web, tema, auth Firebase, guards, interceptor, shell) (commit `43d5905`).
-6. ⬜ **Módulos admin** (dashboard, calendario, reservas, domos, productos+categorías, usuarios, reportes, configuración) — placeholders listos, falta conectar al backend.
-7. ⬜ **Pruebas Angular adicionales + docs README + Docker/Nginx/CI web**.
+6. ✅ **Módulos admin** (8 secciones conectadas al backend) — commits `fc3c979`, `0143766`, `e80694f`, `5461a97`.
+7. ✅ **Infra + docs + lint + tests** (commit `cb14ad3`) + pruebas de autorización backend.
+
+> Estado: TODOS los bloques implementados. Backend con build/tests verde en docker; frontend con lint + 8 tests + build de producción verde. Falta SOLO `npm ci`/build dentro de CI real (workflow listo) y reemplazar los placeholders de Firebase Web. No se ha hecho push ni deploy.
 
 ## Angular (admin-web/) — stack y comandos
 - **Angular 21**, standalone, **zoneless**, signals, TS estricto, SCSS. **Tests con vitest** (no Karma): `npx ng test --watch=false`. Build: `npx ng build`. Dev: `npx ng serve` (usa environment.development.ts vía fileReplacements).

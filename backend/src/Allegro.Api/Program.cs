@@ -112,6 +112,8 @@ await ApplyMigrationsAndSeedAsync(app);
 
 app.Run();
 
+return 0;
+
 static async Task ApplyMigrationsAndSeedAsync(WebApplication app)
 {
     var applyMigrations = ReadBool(app.Configuration["APPLY_MIGRATIONS"], defaultValue: true);
