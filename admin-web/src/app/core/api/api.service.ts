@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { runtimeConfig } from '../config/runtime-config';
 
 type ParamValue = string | number | boolean | null | undefined;
 
@@ -9,7 +9,9 @@ type ParamValue = string | number | boolean | null | undefined;
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
-  private readonly base = environment.apiBaseUrl;
+  private get base(): string {
+    return runtimeConfig.apiBaseUrl;
+  }
 
   get<T>(path: string, params?: Record<string, ParamValue>): Observable<T> {
     return this.http.get<T>(this.url(path), { params: this.toParams(params) });

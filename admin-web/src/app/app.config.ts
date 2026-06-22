@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   LOCALE_ID,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
@@ -10,6 +11,7 @@ import localeEsCo from '@angular/common/locales/es-CO';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/http/auth.interceptor';
+import { loadRuntimeConfig } from './core/config/runtime-config';
 
 registerLocaleData(localeEsCo);
 
@@ -18,6 +20,7 @@ registerLocaleData(localeEsCo);
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideAppInitializer(() => loadRuntimeConfig()),
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor])),
     { provide: LOCALE_ID, useValue: 'es-CO' },

@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, Injectable, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface ConfirmData {
@@ -34,7 +33,6 @@ export interface ConfirmData {
 })
 export class ConfirmDialog {
   protected readonly data = inject<ConfirmData>(MAT_DIALOG_DATA);
-  constructor(public ref: MatDialogRef<ConfirmDialog, boolean>) {}
 }
 
 /** Abre una confirmación y emite true/false. */
