@@ -107,3 +107,36 @@ a {
     padding: var(--sp-4);
   }
 }
+
+// Formularios dentro de diálogos (estilos globales: el overlay vive fuera del componente).
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 320px;
+  padding-top: var(--sp-2);
+}
+.form mat-form-field {
+  width: 100%;
+}
+.form__error {
+  background: var(--c-danger-weak);
+  color: var(--c-danger);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: 0.86rem;
+}
+
+// Encabezado de página con acción a la derecha.
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.page-head h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}

@@ -1,0 +1,75 @@
+<section class="app-page">
+  <div class="page-head">
+    <h1>Productos y categorías</h1>
+    @if (isAdmin()) {
+      <div class="page-head__actions">
+        <button mat-stroked-button (click)="openCategory(null)">
+          <mat-icon>category</mat-icon> Nueva categoría
+        </button>
+        <button mat-flat-button color="primary" (click)="openProduct(null)">
+          <mat-icon>add</mat-icon> Nuevo producto
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <app-skeleton [height]="80" [rows]="4" />
+  } @else if (error()) {
+    <app-error-state (retry)="reload()" />
+  } @else if (!groups().length) {
+    <app-empty-state icon="sell" title="Sin productos" description="Aún no hay productos para mostrar." />
+  } @else {
+    @for (g of groups(); track g.category.id) {
+      <div class="group">
+        <div class="group__head">
+          <span class="group__name">
+            {{ g.category.name }}
+            @if (!g.category.isActive) { <span class="badge">inactiva</span> }
+          </span>
+          @if (isAdmin()) {
+            <button mat-icon-button aria-label="Editar categoría" (click)="openCategory(g.category)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          }
+        </div>
+
+        @if (g.products.length) {
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th class="num">Precio</th>
+                <th>Estado</th>
+                @if (isAdmin()) { <th class="num">Acciones</th> }
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of g.products; track p.id) {
+                <tr [class.inactive]="!p.isActive">
+                  <td>{{ p.name }}</td>
+                  <td class="num">{{ p.currentPrice | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+                  <td>{{ p.isActive ? 'Activo' : 'Inactivo' }}</td>
+                  @if (isAdmin()) {
+                    <td class="num actions">
+                      <mat-slide-toggle
+                        [checked]="p.isActive"
+                        (change)="toggleProduct(p)"
+                        aria-label="Activar/desactivar"
+                      />
+                      <button mat-icon-button (click)="openProduct(p)" aria-label="Editar">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="group__empty">Sin productos en esta categoría.</p>
+        }
+      </div>
+    }
+  }
+</section>
