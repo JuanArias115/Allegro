@@ -1,66 +1,109 @@
 @use '@angular/material' as mat;
 
-// Tema Material 3 con identidad propia (acento violeta, densidad cómoda).
+// Tipografía de la marca (la misma de la app Flutter).
+@font-face {
+  font-family: 'Manrope';
+  src: url('/brand/Manrope.ttf') format('truetype');
+  font-weight: 200 800;
+  font-display: swap;
+  font-style: normal;
+}
+
+// Tema Material 3. Se parte de paletas verdes/coral y luego se ajustan los
+// tokens del sistema a los colores exactos de Allegro (verde bosque, menta…).
 html {
   color-scheme: light;
   @include mat.theme(
     (
       color: (
         theme-type: light,
-        primary: mat.$violet-palette,
+        primary: mat.$green-palette,
         tertiary: mat.$orange-palette,
       ),
       typography: (
-        plain-family: var(--app-font),
-        brand-family: var(--app-font),
+        plain-family: 'Manrope',
+        brand-family: 'Manrope',
       ),
       density: 0,
     )
   );
 }
 
+// Ajuste de los tokens del sistema de Material a la paleta de Allegro.
+html {
+  --mat-sys-primary: #145a41;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #ddf4e8;
+  --mat-sys-on-primary-container: #0e4231;
+  --mat-sys-secondary: #ff6b4a;
+  --mat-sys-on-secondary: #ffffff;
+  --mat-sys-error: #e2483d;
+  --mat-sys-surface: #ffffff;
+  --mat-sys-on-surface: #18201c;
+  --mat-sys-on-surface-variant: #68736c;
+  --mat-sys-outline: #c9c6bb;
+  --mat-sys-outline-variant: #edeae1;
+}
+
 :root {
-  // Tipografía: stack de sistema (sin dependencias externas).
-  --app-font:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  // Tipografía: Manrope (marca) con respaldo del sistema.
+  --app-font: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  // Paleta de la marca (uso moderado del color).
-  --c-bg: #f6f6fb;
+  // ----- Paleta Allegro (naturaleza, descanso, hospitalidad) -----
+  --c-bg: #f7f4ed; // crema
   --c-surface: #ffffff;
-  --c-surface-2: #fbfbfe;
-  --c-ink: #1c1b22;
-  --c-ink-soft: #5b5b6b;
-  --c-muted: #8a8a99;
-  --c-border: #ececf3;
-  --c-primary: #6a3df0;
-  --c-primary-weak: #efeaff;
-  --c-success: #1faa6b;
-  --c-success-weak: #e4f7ee;
-  --c-warning: #e8a13a;
-  --c-warning-weak: #fdf2e1;
-  --c-danger: #e0544e;
-  --c-danger-weak: #fce9e8;
-  --c-info: #3a7de8;
-  --c-info-weak: #e7f0fd;
+  --c-surface-2: #f0eee6; // crema un poco más oscura
+  --c-ink: #18201c; // texto principal
+  --c-ink-soft: #68736c; // texto secundario
+  --c-muted: #8a958c;
+  --c-border: #edeae1; // separadores casi invisibles
 
-  // Estados de reservas (chips).
-  --c-confirmed: #3a7de8;
-  --c-checkedin: #1faa6b;
-  --c-completed: #8a8a99;
-  --c-cancelled: #e0544e;
+  --c-primary: #145a41; // verde bosque (acento principal)
+  --c-primary-dark: #0e4231;
+  --c-primary-weak: #ddf4e8; // menta
 
-  // Bordes suaves y espaciado consistente.
-  --r-sm: 8px;
-  --r-md: 14px;
+  --c-coral: #ff6b4a;
+  --c-coral-weak: #f8e1d6;
+  --c-yellow: #f4c95d;
+  --c-yellow-weak: #f7eed9;
+  --c-blue: #4e7cf0;
+  --c-blue-weak: #dfe3ed;
+  --c-violet: #8b5cf6; // solo estados puntuales
+  --c-violet-weak: #ece3fd;
+
+  // Semánticos
+  --c-success: #145a41;
+  --c-success-weak: #ddf4e8;
+  --c-warning: #d99a2b; // ámbar legible (texto)
+  --c-warning-weak: #f7eed9;
+  --c-danger: #e2483d;
+  --c-danger-weak: #f4dcd4;
+  --c-info: #4e7cf0;
+  --c-info-weak: #dfe3ed;
+
+  // Estados de reservas (chips / barras).
+  --c-confirmed: #4e7cf0; // azul
+  --c-checkedin: #145a41; // verde
+  --c-completed: #8a958c; // gris cálido
+  --c-cancelled: #ff6b4a; // coral
+
+  // Radios (alineados con la app móvil).
+  --r-sm: 12px;
+  --r-md: 16px;
   --r-lg: 20px;
+  --r-xl: 24px;
+
+  // Espaciado en cuadrícula de 4 px.
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
   --sp-4: 16px;
   --sp-5: 24px;
   --sp-6: 32px;
-  --shadow-1: 0 1px 2px rgba(28, 27, 34, 0.06), 0 2px 8px rgba(28, 27, 34, 0.04);
-  --shadow-2: 0 4px 16px rgba(28, 27, 34, 0.08);
+
+  // Sombras muy suaves (sin bordes grises visibles).
+  --shadow-1: 0 4px 12px rgba(24, 32, 28, 0.04);
+  --shadow-2: 0 6px 18px rgba(24, 32, 28, 0.07);
 }
 
 * {
@@ -78,23 +121,25 @@ body {
   background: var(--c-bg);
   color: var(--c-ink);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 a {
   color: var(--c-primary);
 }
 
-// Utilidades mínimas reutilizables.
+// ---------- Utilidades reutilizables ----------
 .app-page {
-  padding: var(--sp-5);
+  padding: var(--sp-6) var(--sp-5);
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .app-page__title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 var(--sp-4);
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  margin: 0 0 var(--sp-5);
 }
 
 .app-grid {
@@ -104,17 +149,17 @@ a {
 
 @media (max-width: 600px) {
   .app-page {
-    padding: var(--sp-4);
+    padding: var(--sp-5) var(--sp-4);
   }
 }
 
-// Formularios dentro de diálogos (estilos globales: el overlay vive fuera del componente).
+// ---------- Formularios en diálogos (overlay global) ----------
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   min-width: 320px;
-  padding-top: var(--sp-2);
+  padding-top: var(--sp-3);
 }
 .form mat-form-field {
   width: 100%;
@@ -125,13 +170,13 @@ a {
   border-radius: var(--r-sm);
   padding: var(--sp-2) var(--sp-3);
   font-size: 0.86rem;
+  font-weight: 600;
 }
 
-// Formulario en 2 columnas para diálogos más anchos.
 .form--wide {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--sp-2) var(--sp-3);
+  gap: var(--sp-3);
   min-width: 520px;
 }
 .form--wide .span-2 {
@@ -150,10 +195,53 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  margin-bottom: var(--sp-4);
+  margin-bottom: var(--sp-5);
 }
 .page-head h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.4px;
   margin: 0;
 }
+
+// ---------- Personalización de Angular Material (evita el look genérico) ----------
+// Botones: más redondeados, peso fuerte, alto cómodo.
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  --mdc-filled-button-container-shape: 12px;
+  --mdc-outlined-button-container-shape: 12px;
+  --mdc-text-button-container-shape: 12px;
+  --mdc-protected-button-container-shape: 12px;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  height: 44px;
+}
+.mat-mdc-outlined-button {
+  --mdc-outlined-button-outline-color: var(--c-border);
+}
+
+// Campos: esquinas suaves y relleno cálido.
+.mat-mdc-text-field-wrapper {
+  border-radius: var(--r-md) !important;
+}
+
+// Diálogos: superficie redondeada y con aire.
+.mat-mdc-dialog-surface {
+  border-radius: var(--r-lg) !important;
+  box-shadow: var(--shadow-2) !important;
+}
+.mat-mdc-dialog-title {
+  font-weight: 800 !important;
+  letter-spacing: -0.3px;
+}
+
+// Menús: redondeo y sombra suave.
+.mat-mdc-menu-panel {
+  border-radius: var(--r-md) !important;
+  box-shadow: var(--shadow-2) !important;
+  border: 1px solid var(--c-border);
+}
+
+// Toggles e indicadores reciben el verde por --mat-sys-primary.

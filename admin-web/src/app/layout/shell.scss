@@ -3,7 +3,7 @@
 }
 
 .shell__nav {
-  width: 256px;
+  width: 264px;
   border-right: 1px solid var(--c-border);
   background: var(--c-surface);
   padding: var(--sp-3);
@@ -11,30 +11,41 @@
 
 .brand {
   display: flex;
-  align-items: baseline;
-  gap: var(--sp-2);
+  align-items: center;
+  gap: var(--sp-3);
   padding: var(--sp-4) var(--sp-3) var(--sp-5);
 }
-.brand__dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--c-primary);
-  align-self: center;
+.brand__logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  flex: none;
+}
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
 }
 .brand__name {
   font-weight: 800;
   font-size: 1.2rem;
+  letter-spacing: -0.3px;
 }
 .brand__sub {
   color: var(--c-muted);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 mat-nav-list a {
   border-radius: var(--r-md);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  color: var(--c-ink-soft);
+}
+mat-nav-list a mat-icon {
+  color: var(--c-ink-soft);
 }
 mat-nav-list a.mdc-list-item--activated {
   background: var(--c-primary-weak);
@@ -42,7 +53,7 @@ mat-nav-list a.mdc-list-item--activated {
 mat-nav-list a.mdc-list-item--activated mat-icon,
 mat-nav-list a.mdc-list-item--activated [matListItemTitle] {
   color: var(--c-primary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .shell__content {
@@ -55,38 +66,86 @@ mat-nav-list a.mdc-list-item--activated [matListItemTitle] {
   z-index: 5;
   background: var(--c-surface);
   border-bottom: 1px solid var(--c-border);
-  height: 60px;
+  height: 68px;
+  padding: 0 var(--sp-4);
 }
 .topbar__spacer {
   flex: 1 1 auto;
 }
 
-.userbtn {
+// ---------- Perfil (esquina superior derecha) ----------
+.profile {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
+  height: 52px;
+  padding: 0 var(--sp-2) 0 6px;
+  margin-right: var(--sp-1);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
-.userbtn__name {
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.profile:hover {
+  background: var(--c-surface-2);
+  border-color: var(--c-border);
 }
-.avatar {
-  width: 30px;
-  height: 30px;
+.profile__avatar {
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: var(--c-primary);
   color: #fff;
   display: grid;
   place-items: center;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  overflow: hidden;
+  flex: none;
+}
+.profile__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+  max-width: 180px;
+}
+.profile__name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--c-ink);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile__role {
+  font-size: 0.78rem;
+  color: var(--c-muted);
+}
+.profile__chevron {
+  color: var(--c-muted);
 }
 
+@media (max-width: 520px) {
+  .profile__info {
+    display: none;
+  }
+}
+
+// ---------- Tarjeta de usuario en el menú ----------
 .usercard {
   padding: var(--sp-3) var(--sp-4);
   border-bottom: 1px solid var(--c-border);
+  opacity: 1 !important;
 }
 .usercard__name {
   font-weight: 700;
@@ -99,9 +158,9 @@ mat-nav-list a.mdc-list-item--activated [matListItemTitle] {
   margin-top: var(--sp-1);
   color: var(--c-primary);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .shell__main {
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 68px);
 }

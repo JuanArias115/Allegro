@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Logo sin fondo, escalado al ~62% y centrado para la zona segura del ícono adaptativo. -->
+  <g transform="translate(512,512) scale(0.62) translate(-512,-472)">
+    <polygon points="512,200 180,700 310,700" fill="#6B8F6B"/>
+    <polygon points="512,200 844,700 714,700" fill="#6B8F6B"/>
+    <polygon points="512,310 370,700 654,700" fill="#F2F5EE"/>
+    <path d="M512,388 C564,428 572,514 512,562 C452,514 460,428 512,388 Z" fill="#6B8F6B"/>
+    <line x1="512" y1="398" x2="512" y2="556" stroke="#F2F5EE" stroke-width="9" stroke-linecap="round"/>
+    <rect x="180" y="700" width="664" height="44" rx="22" ry="22" fill="#6B8F6B"/>
+  </g>
+</svg>

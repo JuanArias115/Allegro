@@ -69,9 +69,13 @@ export class Shell {
 
   protected readonly initials = computed(() => {
     const u = this.user();
-    const base = u?.name || u?.email || '?';
-    return base.trim().charAt(0).toUpperCase();
+    const base = (u?.name || u?.email || '?').trim();
+    const parts = base.split(/\s+/).filter(Boolean);
+    const letters = parts.length >= 2 ? parts[0][0] + parts[1][0] : base.slice(0, 2);
+    return letters.toUpperCase();
   });
+
+  protected readonly roleLabel = computed(() => (this.isAdmin() ? 'Administrador' : 'Operador'));
 
   async logout(): Promise<void> {
     await this.auth.logout();
