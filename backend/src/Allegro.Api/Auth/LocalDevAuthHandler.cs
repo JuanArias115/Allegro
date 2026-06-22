@@ -13,6 +13,7 @@ public class LocalDevAuthHandler : AuthenticationHandler<AuthenticationSchemeOpt
 {
     public const string SchemeName = "LocalDev";
     private readonly string _expectedToken;
+    private readonly string _role;
 
     public LocalDevAuthHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -24,6 +25,10 @@ public class LocalDevAuthHandler : AuthenticationHandler<AuthenticationSchemeOpt
         _expectedToken = config["LOCAL_DEV_TOKEN"]
             ?? Environment.GetEnvironmentVariable("LOCAL_DEV_TOKEN")
             ?? "allegro-dev-token";
+        // Permite probar localmente roles admin/operator sin Firebase.
+        _role = (config["LOCAL_DEV_ROLE"]
+            ?? Environment.GetEnvironmentVariable("LOCAL_DEV_ROLE")
+            ?? Roles.Admin).Trim().ToLowerInvariant();
     }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -39,7 +44,11 @@ public class LocalDevAuthHandler : AuthenticationHandler<AuthenticationSchemeOpt
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, "local-dev-user"),
-            new Claim(ClaimTypes.Name, "Operador (dev)")
+            new Claim("user_id", "local-dev-user"),
+            new Claim("name", "Operador (dev)"),
+            new Claim(ClaimTypes.Name, "Operador (dev)"),
+            new Claim(AppClaims.Role, _role),
+            new Claim(AppClaims.AppAccess, "true"),
         };
         var identity = new ClaimsIdentity(claims, SchemeName);
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), SchemeName);

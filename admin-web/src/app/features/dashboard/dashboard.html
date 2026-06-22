@@ -1,0 +1,124 @@
+<section class="app-page">
+  <h1 class="app-page__title">Dashboard</h1>
+
+  @if (loading()) {
+    <div class="app-grid kpis">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <app-skeleton [height]="76" />
+      }
+    </div>
+    <app-skeleton [height]="220" />
+  } @else if (error()) {
+    <app-error-state (retry)="reload()" />
+  } @else {
+    <!-- KPIs -->
+    <div class="app-grid kpis">
+      <app-kpi-card
+        icon="login"
+        tone="info"
+        [value]="today()!.arrivals.length"
+        label="Llegadas de hoy"
+      />
+      <app-kpi-card
+        icon="logout"
+        tone="warning"
+        [value]="today()!.departures.length"
+        label="Salidas de hoy"
+      />
+      <app-kpi-card
+        icon="cabin"
+        tone="success"
+        [value]="today()!.currentlyHosted.length"
+        label="Domos ocupados"
+      />
+      <app-kpi-card
+        icon="event_upcoming"
+        tone="primary"
+        [value]="today()!.upcoming.length"
+        label="Próximas reservas"
+      />
+    </div>
+
+    @if (isAdmin() && summary(); as s) {
+      <div class="app-grid kpis">
+        <app-kpi-card
+          icon="payments"
+          tone="success"
+          [value]="s.paymentsReceived | currency: 'COP' : 'symbol-narrow' : '1.0-0'"
+          label="Pagos recibidos (mes)"
+        />
+        <app-kpi-card
+          icon="account_balance_wallet"
+          tone="danger"
+          [value]="s.pendingBalance | currency: 'COP' : 'symbol-narrow' : '1.0-0'"
+          label="Saldo pendiente (mes)"
+          hint="Valor reservado, aún no pagado"
+        />
+        <app-kpi-card
+          icon="donut_large"
+          tone="primary"
+          [value]="(s.occupancyRate * 100).toFixed(1) + '%'"
+          label="Ocupación del mes"
+          [hint]="s.occupiedNights + ' / ' + s.availableNights + ' noches'"
+        />
+        <app-kpi-card
+          icon="event_available"
+          tone="info"
+          [value]="s.reservationsCount"
+          label="Reservas del mes"
+          [hint]="(s.reservedValue | currency: 'COP' : 'symbol-narrow' : '1.0-0') + ' reservado'"
+        />
+      </div>
+    }
+
+    <!-- Alertas -->
+    @if (alerts().length) {
+      <div class="panel panel--alert">
+        <div class="panel__head"><span class="dot"></span> Alertas</div>
+        <ul class="alerts">
+          @for (a of alerts(); track a.reservation.id) {
+            <li>
+              <span class="alerts__who">{{ a.reservation.guestName }}</span>
+              <span class="alerts__what">{{ a.text }}</span>
+              <span class="alerts__amount">{{
+                a.reservation.balance | currency: 'COP' : 'symbol-narrow' : '1.0-0'
+              }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Próximas reservas -->
+    <div class="panel">
+      <div class="panel__head">Próximas reservas</div>
+      @if (today()!.upcoming.length) {
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Huésped</th>
+              <th>Domo</th>
+              <th>Llegada</th>
+              <th>Estado</th>
+              <th class="num">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of today()!.upcoming; track r.id) {
+              <tr>
+                <td>{{ r.guestName }}</td>
+                <td>{{ r.domeName }}</td>
+                <td>{{ r.checkIn | date: 'mediumDate' }}</td>
+                <td><app-status-chip [status]="r.status" /></td>
+                <td class="num">{{ r.balance | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="empty">No hay próximas reservas.</p>
+      }
+      <a routerLink="/reservas" class="panel__link">Ver todas las reservas →</a>
+    </div>
+  }
+</section>

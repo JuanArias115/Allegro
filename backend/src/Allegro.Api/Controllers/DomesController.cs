@@ -1,5 +1,6 @@
 using Allegro.Application.Dtos;
 using Allegro.Application.Services;
+using Allegro.Api.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,7 @@ public class DomesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = Policies.Admin)]
     public async Task<ActionResult<DomeDto>> Update(Guid id, UpsertDomeDto dto, CancellationToken ct)
         => Ok(await _service.UpdateAsync(id, dto, ct));
 }

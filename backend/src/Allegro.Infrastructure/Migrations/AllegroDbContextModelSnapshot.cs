@@ -22,6 +22,42 @@ namespace Allegro.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Allegro.Domain.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("ActorUid")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime>("AtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Detail")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TargetId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("AtUtc");
+
+                    b.ToTable("audit_logs", (string)null);
+                });
+
             modelBuilder.Entity("Allegro.Domain.Consumption", b =>
                 {
                     b.Property<Guid>("Id")
@@ -84,6 +120,36 @@ namespace Allegro.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("domes", (string)null);
+                });
+
+            modelBuilder.Entity("Allegro.Domain.DomeBlock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DomeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DomeId", "StartDate", "EndDate");
+
+                    b.ToTable("dome_blocks", (string)null);
                 });
 
             modelBuilder.Entity("Allegro.Domain.Payment", b =>
@@ -250,6 +316,17 @@ namespace Allegro.Infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Reservation");
+                });
+
+            modelBuilder.Entity("Allegro.Domain.DomeBlock", b =>
+                {
+                    b.HasOne("Allegro.Domain.Dome", "Dome")
+                        .WithMany()
+                        .HasForeignKey("DomeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Dome");
                 });
 
             modelBuilder.Entity("Allegro.Domain.Payment", b =>

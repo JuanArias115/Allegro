@@ -70,3 +70,24 @@ public class UpsertDomeValidator : AbstractValidator<UpsertDomeDto>
         RuleFor(x => x.MaxCapacity).GreaterThan(0);
     }
 }
+
+public class UpsertProductCategoryValidator : AbstractValidator<UpsertProductCategoryDto>
+{
+    public UpsertProductCategoryValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(80);
+        RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo(0);
+    }
+}
+
+public class CreateDomeBlockValidator : AbstractValidator<CreateDomeBlockDto>
+{
+    public CreateDomeBlockValidator()
+    {
+        RuleFor(x => x.DomeId).NotEmpty();
+        RuleFor(x => x.Reason).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.EndDate)
+            .GreaterThan(x => x.StartDate)
+            .WithMessage("La fecha final debe ser posterior a la inicial.");
+    }
+}

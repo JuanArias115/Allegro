@@ -1,0 +1,147 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  flex-wrap: wrap;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.nav__label {
+  font-weight: 700;
+  text-transform: capitalize;
+  min-width: 160px;
+  text-align: center;
+}
+
+.cal {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+.cal__head,
+.cal__week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.cal__dow {
+  padding: var(--sp-2);
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--c-border);
+}
+.cell {
+  min-height: 96px;
+  border-right: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.cell--out {
+  background: var(--c-surface-2);
+  color: var(--c-muted);
+}
+.cell--today {
+  background: var(--c-primary-weak);
+}
+.cell__num {
+  font-size: 0.78rem;
+  font-weight: 600;
+  align-self: flex-end;
+}
+.ev {
+  border: none;
+  text-align: left;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 2px 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+}
+.ev--confirmed {
+  background: var(--c-confirmed);
+}
+.ev--checkedin {
+  background: var(--c-checkedin);
+}
+.ev--completed {
+  background: var(--c-completed);
+}
+.ev--block {
+  background: repeating-linear-gradient(45deg, #e9e9f0, #e9e9f0 6px, #dedee8 6px, #dedee8 12px);
+  color: var(--c-ink-soft);
+  cursor: default;
+}
+
+.agenda {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+.agenda__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--c-border);
+  padding: var(--sp-3) var(--sp-4);
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+.agenda__row:hover {
+  background: var(--c-primary-weak);
+}
+.agenda__date {
+  width: 120px;
+  color: var(--c-ink-soft);
+}
+.agenda__bar {
+  width: 4px;
+  height: 24px;
+  border-radius: 3px;
+  background: var(--c-muted);
+}
+.bar--confirmed {
+  background: var(--c-confirmed);
+}
+.bar--checkedin {
+  background: var(--c-checkedin);
+}
+.bar--completed {
+  background: var(--c-completed);
+}
+.agenda__who {
+  font-weight: 600;
+  flex: 1;
+}
+.agenda__dome {
+  color: var(--c-ink-soft);
+}
+.agenda__nights {
+  color: var(--c-muted);
+  font-size: 0.85rem;
+}
+.muted {
+  color: var(--c-muted);
+  padding: var(--sp-4);
+}

@@ -1,0 +1,95 @@
+<section class="app-page">
+  <div class="page-head">
+    <h1>Reportes</h1>
+    <button mat-stroked-button (click)="exportCsv()" [disabled]="loading()">
+      <mat-icon>download</mat-icon> Exportar CSV
+    </button>
+  </div>
+
+  <form [formGroup]="form" class="filters" (ngSubmit)="run()">
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" formControlName="from" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta (exclusivo)</mat-label>
+      <input matInput type="date" formControlName="to" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit">Aplicar</button>
+  </form>
+
+  @if (loading()) {
+    <app-skeleton [height]="90" [rows]="3" />
+  } @else if (error()) {
+    <app-error-state (retry)="run()" description="Revisa el rango de fechas e intenta de nuevo." />
+  } @else if (summary(); as s) {
+    <!-- Separa claramente: valor reservado / dinero recibido / saldo pendiente -->
+    <div class="kpis">
+      <app-kpi-card icon="event_available" tone="info" [value]="s.reservationsCount" label="Reservas" />
+      <app-kpi-card icon="bedtime" tone="primary" [value]="s.occupiedNights" label="Noches ocupadas"
+        [hint]="(s.occupancyRate * 100).toFixed(1) + '% de ' + s.availableNights" />
+      <app-kpi-card icon="request_quote" tone="warning"
+        [value]="s.reservedValue | currency: 'COP' : 'symbol-narrow' : '1.0-0'"
+        label="Valor reservado" hint="No es ingreso hasta que se pague" />
+      <app-kpi-card icon="payments" tone="success"
+        [value]="s.paymentsReceived | currency: 'COP' : 'symbol-narrow' : '1.0-0'"
+        label="Dinero recibido" />
+      <app-kpi-card icon="account_balance_wallet" tone="danger"
+        [value]="s.pendingBalance | currency: 'COP' : 'symbol-narrow' : '1.0-0'"
+        label="Saldo pendiente" />
+      <app-kpi-card icon="cancel" tone="danger" [value]="s.cancellations" label="Cancelaciones" />
+    </div>
+
+    <div class="charts">
+      <div class="panel">
+        <div class="panel__head">Ocupación por domo</div>
+        <app-chart [option]="occupancyChart()" />
+      </div>
+      <div class="panel">
+        <div class="panel__head">Pagos recibidos por día</div>
+        <app-chart [option]="paymentsChart()" />
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel__head">Ocupación por domo</div>
+      <table class="tbl">
+        <thead>
+          <tr><th>Domo</th><th class="num">Noches ocupadas</th><th class="num">Disponibles</th><th class="num">Ocupación</th></tr>
+        </thead>
+        <tbody>
+          @for (d of occupancy()?.domes ?? []; track d.domeId) {
+            <tr>
+              <td>{{ d.domeName }}</td>
+              <td class="num">{{ d.occupiedNights }}</td>
+              <td class="num">{{ d.availableNights }}</td>
+              <td class="num">{{ (d.occupancyRate * 100).toFixed(1) }}%</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="panel__head">Productos vendidos</div>
+      @if (products()?.items?.length) {
+        <table class="tbl">
+          <thead>
+            <tr><th>Producto</th><th class="num">Cantidad</th><th class="num">Valor</th></tr>
+          </thead>
+          <tbody>
+            @for (p of products()!.items; track p.productId) {
+              <tr>
+                <td>{{ p.productName }}</td>
+                <td class="num">{{ p.quantity }}</td>
+                <td class="num">{{ p.value | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="muted">Sin ventas de productos en el periodo.</p>
+      }
+    </div>
+  }
+</section>

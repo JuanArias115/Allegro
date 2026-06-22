@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar producto' : 'Nuevo producto' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Categoría</mat-label>
+      <mat-select formControlName="categoryId">
+        @for (c of data.categories; track c.id) {
+          <mat-option [value]="c.id">{{ c.name }}@if (!c.isActive) { (inactiva) }</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Precio (COP)</mat-label>
+      <input matInput type="number" formControlName="currentPrice" min="0" />
+    </mat-form-field>
+
+    <mat-slide-toggle formControlName="isActive">Activo</mat-slide-toggle>
+
+    @if (error()) {
+      <div class="form__error">{{ error() }}</div>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="saving()">Guardar</button>
+</mat-dialog-actions>

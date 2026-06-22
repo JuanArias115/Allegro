@@ -1,0 +1,30 @@
+services:
+  allegro-admin:
+    image: ghcr.io/juanarias115/allegro-admin:${ADMIN_IMAGE_TAG:-latest}
+    container_name: allegro-admin
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      API_BASE_URL: ${ADMIN_API_BASE_URL:-https://allegro.juanariasdev.com}
+      GOOGLE_AUTH_ENABLED: ${GOOGLE_AUTH_ENABLED:-true}
+      FIREBASE_WEB_API_KEY: ${FIREBASE_WEB_API_KEY}
+      FIREBASE_WEB_AUTH_DOMAIN: ${FIREBASE_WEB_AUTH_DOMAIN}
+      FIREBASE_WEB_PROJECT_ID: ${FIREBASE_WEB_PROJECT_ID}
+      FIREBASE_WEB_STORAGE_BUCKET: ${FIREBASE_WEB_STORAGE_BUCKET}
+      FIREBASE_WEB_MESSAGING_SENDER_ID: ${FIREBASE_WEB_MESSAGING_SENDER_ID}
+      FIREBASE_WEB_APP_ID: ${FIREBASE_WEB_APP_ID}
+    expose:
+      - "80"
+    networks:
+      - allegro_ingress
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+networks:
+  allegro_ingress:
+    external: true

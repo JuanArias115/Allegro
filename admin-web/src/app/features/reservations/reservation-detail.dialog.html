@@ -1,0 +1,100 @@
+@if (loading()) {
+  <h2 mat-dialog-title>Reserva</h2>
+  <mat-dialog-content><p>Cargando…</p></mat-dialog-content>
+} @else if (reservation(); as r) {
+  <h2 mat-dialog-title>{{ r.guestName }} · {{ r.domeName }}</h2>
+  <mat-dialog-content>
+    <!-- Resumen -->
+    <div class="summary">
+      <div><span class="k">Fechas</span><span>{{ r.checkIn }} → {{ r.checkOut }}</span></div>
+      <div><span class="k">Estado</span><span>{{ r.status }}</span></div>
+      <div><span class="k">Alojamiento</span><span>{{ r.lodgingPrice | number }}</span></div>
+      <div><span class="k">Consumos</span><span>{{ r.totalConsumptions | number }}</span></div>
+      <div><span class="k">Total</span><span>{{ r.totalDue | number }}</span></div>
+      <div><span class="k">Pagado</span><span>{{ r.totalPaid | number }}</span></div>
+      <div class="balance"><span class="k">Saldo</span><span>{{ r.balance | number }}</span></div>
+    </div>
+
+    <!-- Acciones de estado -->
+    <div class="status-actions">
+      @if (r.status === 'Confirmed') {
+        <button mat-stroked-button (click)="setStatus('CheckedIn')">
+          <mat-icon>login</mat-icon> Check-in
+        </button>
+      }
+      @if (r.status === 'Confirmed' || r.status === 'CheckedIn') {
+        <button mat-flat-button color="primary" (click)="checkout()">
+          <mat-icon>task_alt</mat-icon> Checkout
+        </button>
+        <button mat-stroked-button color="warn" (click)="cancel()">
+          <mat-icon>cancel</mat-icon> Cancelar
+        </button>
+      }
+    </div>
+
+    <!-- Pagos -->
+    <h3>Pagos</h3>
+    @for (p of r.payments; track p.id) {
+      <div class="line">
+        <span>{{ p.method }}</span>
+        <span class="muted">{{ p.note }}</span>
+        <span class="amount">{{ p.amount | number }}</span>
+      </div>
+    } @empty {
+      <p class="muted">Sin pagos.</p>
+    }
+    @if (r.status !== 'Cancelled') {
+      <form [formGroup]="paymentForm" class="inline-form" (ngSubmit)="addPayment()">
+        <mat-form-field appearance="outline">
+          <mat-label>Monto</mat-label>
+          <input matInput type="number" formControlName="amount" min="0" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Método</mat-label>
+          <mat-select formControlName="method">
+            <mat-option value="Cash">Efectivo</mat-option>
+            <mat-option value="Transfer">Transferencia</mat-option>
+            <mat-option value="Other">Otro</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit">Abonar</button>
+      </form>
+    }
+
+    <!-- Consumos -->
+    <h3>Consumos</h3>
+    @for (c of r.consumptions; track c.id) {
+      <div class="line">
+        <span>{{ c.quantity }}× {{ c.productName }}</span>
+        <span class="amount">{{ c.subtotal | number }}</span>
+        @if (r.status !== 'Cancelled') {
+          <button mat-icon-button (click)="removeConsumption(c.id)" aria-label="Quitar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </div>
+    } @empty {
+      <p class="muted">Sin consumos.</p>
+    }
+    @if (r.status !== 'Cancelled') {
+      <form [formGroup]="consumptionForm" class="inline-form" (ngSubmit)="addConsumption()">
+        <mat-form-field appearance="outline">
+          <mat-label>Producto</mat-label>
+          <mat-select formControlName="productId">
+            @for (p of products(); track p.id) {
+              <mat-option [value]="p.id">{{ p.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Cant.</mat-label>
+          <input matInput type="number" formControlName="quantity" min="1" />
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit">Agregar</button>
+      </form>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="close()">Cerrar</button>
+  </mat-dialog-actions>
+}

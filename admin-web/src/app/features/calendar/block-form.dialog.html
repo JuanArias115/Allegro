@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Bloquear fechas</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Domo</mat-label>
+      <mat-select formControlName="domeId">
+        @for (d of domes; track d.id) {
+          <mat-option [value]="d.id">{{ d.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" formControlName="startDate" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta (exclusivo)</mat-label>
+      <input matInput type="date" formControlName="endDate" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Motivo</mat-label>
+      <input matInput formControlName="reason" placeholder="Mantenimiento, uso personal…" />
+    </mat-form-field>
+
+    @if (error()) {
+      <div class="form__error">{{ error() }}</div>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="saving()">Bloquear</button>
+</mat-dialog-actions>

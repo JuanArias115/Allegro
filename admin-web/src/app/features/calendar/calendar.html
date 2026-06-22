@@ -1,0 +1,75 @@
+<section class="app-page">
+  <div class="page-head">
+    <h1>Calendario</h1>
+    <button mat-stroked-button (click)="blockDates()">
+      <mat-icon>block</mat-icon> Bloquear fechas
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="nav">
+      <button mat-icon-button (click)="prevMonth()" aria-label="Mes anterior">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="nav__label">{{ monthLabel() }}</span>
+      <button mat-icon-button (click)="nextMonth()" aria-label="Mes siguiente">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+    <mat-button-toggle-group [value]="view()" (change)="view.set($event.value)" aria-label="Vista">
+      <mat-button-toggle value="mes">Mes</mat-button-toggle>
+      <mat-button-toggle value="agenda">Agenda</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (loading()) {
+    <app-skeleton [height]="420" />
+  } @else if (error()) {
+    <app-error-state (retry)="load()" />
+  } @else if (view() === 'mes') {
+    <div class="cal">
+      <div class="cal__head">
+        @for (d of weekDays; track d) {
+          <div class="cal__dow">{{ d }}</div>
+        }
+      </div>
+      @for (week of weeks(); track $index) {
+        <div class="cal__week">
+          @for (cell of week; track cell.date) {
+            <div class="cell" [class.cell--out]="!cell.inMonth" [class.cell--today]="cell.isToday">
+              <div class="cell__num">{{ cell.day }}</div>
+              @for (b of cell.blocks; track b.id) {
+                <div class="ev ev--block" title="{{ b.reason }}">🔒 {{ b.reason }}</div>
+              }
+              @for (e of cell.events; track e.id) {
+                <button
+                  class="ev"
+                  [class]="'ev--' + e.status.toLowerCase()"
+                  (click)="openReservation(e)"
+                  title="{{ e.guestName }} · {{ e.domeName }}"
+                >
+                  {{ e.guestName }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Agenda -->
+    <div class="agenda">
+      @for (r of agenda(); track r.id) {
+        <button class="agenda__row" (click)="openReservation(r)">
+          <span class="agenda__date">{{ r.checkIn | date: 'mediumDate' }}</span>
+          <span class="agenda__bar" [class]="'bar--' + r.status.toLowerCase()"></span>
+          <span class="agenda__who">{{ r.guestName }}</span>
+          <span class="agenda__dome">{{ r.domeName }}</span>
+          <span class="agenda__nights">→ {{ r.checkOut | date: 'mediumDate' }}</span>
+        </button>
+      } @empty {
+        <p class="muted">No hay reservas este mes.</p>
+      }
+    </div>
+  }
+</section>

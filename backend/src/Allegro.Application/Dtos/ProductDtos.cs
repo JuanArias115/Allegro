@@ -24,6 +24,11 @@ public record UpsertProductDto(
     bool IsActive,
     string? ImageUrl);
 
+public record UpsertProductCategoryDto(
+    string Name,
+    int DisplayOrder,
+    bool IsActive);
+
 public static class ProductMapping
 {
     public static ProductCategoryDto ToDto(this ProductCategory c) =>

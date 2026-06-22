@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>Editar domo</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción corta</mat-label>
+      <input matInput formControlName="shortDescription" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Capacidad máxima</mat-label>
+      <input matInput type="number" formControlName="maxCapacity" min="1" />
+    </mat-form-field>
+
+    <mat-slide-toggle formControlName="isActive">Activo</mat-slide-toggle>
+
+    @if (error()) {
+      <div class="form__error">{{ error() }}</div>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="saving()">Guardar</button>
+</mat-dialog-actions>

@@ -1,0 +1,159 @@
+@use '@angular/material' as mat;
+
+// Tema Material 3 con identidad propia (acento violeta, densidad cómoda).
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$violet-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: (
+        plain-family: var(--app-font),
+        brand-family: var(--app-font),
+      ),
+      density: 0,
+    )
+  );
+}
+
+:root {
+  // Tipografía: stack de sistema (sin dependencias externas).
+  --app-font:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  // Paleta de la marca (uso moderado del color).
+  --c-bg: #f6f6fb;
+  --c-surface: #ffffff;
+  --c-surface-2: #fbfbfe;
+  --c-ink: #1c1b22;
+  --c-ink-soft: #5b5b6b;
+  --c-muted: #8a8a99;
+  --c-border: #ececf3;
+  --c-primary: #6a3df0;
+  --c-primary-weak: #efeaff;
+  --c-success: #1faa6b;
+  --c-success-weak: #e4f7ee;
+  --c-warning: #e8a13a;
+  --c-warning-weak: #fdf2e1;
+  --c-danger: #e0544e;
+  --c-danger-weak: #fce9e8;
+  --c-info: #3a7de8;
+  --c-info-weak: #e7f0fd;
+
+  // Estados de reservas (chips).
+  --c-confirmed: #3a7de8;
+  --c-checkedin: #1faa6b;
+  --c-completed: #8a8a99;
+  --c-cancelled: #e0544e;
+
+  // Bordes suaves y espaciado consistente.
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --shadow-1: 0 1px 2px rgba(28, 27, 34, 0.06), 0 2px 8px rgba(28, 27, 34, 0.04);
+  --shadow-2: 0 4px 16px rgba(28, 27, 34, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--app-font);
+  background: var(--c-bg);
+  color: var(--c-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--c-primary);
+}
+
+// Utilidades mínimas reutilizables.
+.app-page {
+  padding: var(--sp-5);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-page__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 var(--sp-4);
+}
+
+.app-grid {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+@media (max-width: 600px) {
+  .app-page {
+    padding: var(--sp-4);
+  }
+}
+
+// Formularios dentro de diálogos (estilos globales: el overlay vive fuera del componente).
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 320px;
+  padding-top: var(--sp-2);
+}
+.form mat-form-field {
+  width: 100%;
+}
+.form__error {
+  background: var(--c-danger-weak);
+  color: var(--c-danger);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: 0.86rem;
+}
+
+// Formulario en 2 columnas para diálogos más anchos.
+.form--wide {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-2) var(--sp-3);
+  min-width: 520px;
+}
+.form--wide .span-2 {
+  grid-column: 1 / -1;
+}
+@media (max-width: 600px) {
+  .form--wide {
+    grid-template-columns: 1fr;
+    min-width: auto;
+  }
+}
+
+// Encabezado de página con acción a la derecha.
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.page-head h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}

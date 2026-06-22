@@ -1,0 +1,40 @@
+name: admin-web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'admin-web/**'
+      - '.github/workflows/admin-web.yml'
+  pull_request:
+    paths:
+      - 'admin-web/**'
+      - '.github/workflows/admin-web.yml'
+
+# Solo CI (build/lint/test). NO despliega el frontend.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: admin-web/package-lock.json
+      - name: Usar la versión de npm declarada por el proyecto
+        run: npm install --global npm@11.6.2
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Pruebas
+        run: npm test
+      - name: Build de producción
+        run: npm run build

@@ -1,4 +1,5 @@
 using Allegro.Application.Abstractions;
+using Allegro.Infrastructure.Firebase;
 using Allegro.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,19 @@ public static class DependencyInjection
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AllegroDbContext>());
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<DataSeeder>();
+
+        // Gestión de usuarios: implementación real solo con AUTH_MODE=firebase
+        // (requiere credenciales de Firebase Admin). En otros modos, un stub seguro.
+        var mode = (config["AUTH_MODE"] ?? "local").Trim().ToLowerInvariant();
+        if (mode == "firebase")
+        {
+            FirebaseAppInitializer.EnsureInitialized(config["FIREBASE_PROJECT_ID"]);
+            services.AddSingleton<IFirebaseUserManagementService, FirebaseUserManagementService>();
+        }
+        else
+        {
+            services.AddSingleton<IFirebaseUserManagementService, UnavailableFirebaseUserManagementService>();
+        }
 
         return services;
     }

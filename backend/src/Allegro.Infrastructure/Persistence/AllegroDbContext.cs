@@ -15,6 +15,8 @@ public class AllegroDbContext : DbContext, IAppDbContext
     public DbSet<Consumption> Consumptions => Set<Consumption>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<DomeBlock> DomeBlocks => Set<DomeBlock>();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
         Database.BeginTransactionAsync(ct);
@@ -129,6 +131,36 @@ public class AllegroDbContext : DbContext, IAppDbContext
 
             e.HasIndex(x => x.ReservationId);
             e.HasIndex(x => x.ProductId);
+        });
+
+        b.Entity<AuditLog>(e =>
+        {
+            e.ToTable("audit_logs");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.ActorUid).IsRequired().HasMaxLength(128);
+            e.Property(x => x.Action).IsRequired().HasMaxLength(80);
+            e.Property(x => x.TargetId).HasMaxLength(128);
+            e.Property(x => x.Detail).HasMaxLength(500);
+            e.Property(x => x.AtUtc).HasColumnType("timestamp with time zone");
+            e.HasIndex(x => x.AtUtc);
+            e.HasIndex(x => x.Action);
+        });
+
+        b.Entity<DomeBlock>(e =>
+        {
+            e.ToTable("dome_blocks");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.StartDate).HasColumnType("date");
+            e.Property(x => x.EndDate).HasColumnType("date");
+            e.Property(x => x.Reason).IsRequired().HasMaxLength(200);
+            e.Property(x => x.CreatedAt).HasColumnType("timestamp with time zone");
+
+            e.HasOne(x => x.Dome)
+                .WithMany()
+                .HasForeignKey(x => x.DomeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasIndex(x => new { x.DomeId, x.StartDate, x.EndDate });
         });
     }
 }

@@ -11,6 +11,10 @@ public class FakeClock : IClock
 {
     public DateTime UtcNow { get; set; } = new(2026, 6, 19, 12, 0, 0, DateTimeKind.Utc);
     public DateOnly Today { get; set; } = new(2026, 6, 19);
+
+    // America/Bogota = UTC-5 (sin horario de verano).
+    public DateOnly ToBusinessDate(DateTime utc) =>
+        DateOnly.FromDateTime(DateTime.SpecifyKind(utc, DateTimeKind.Utc).AddHours(-5));
 }
 
 /// <summary>
@@ -63,6 +67,8 @@ public sealed class TestHarness : IDisposable
     public ReservationService Reservations() => new(_db, Clock);
     public ProductService Products() => new(_db);
     public ProductCategoryService Categories() => new(_db);
+    public DomeBlockService Blocks() => new(_db, Clock);
+    public ReportService Reports() => new(_db, Clock);
 
     public Product AddProduct(string name, decimal price, Guid? categoryId = null)
     {

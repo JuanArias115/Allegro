@@ -14,4 +14,5 @@ public record AvailabilityDto(
     DateOnly CheckIn,
     DateOnly CheckOut,
     bool IsAvailable,
-    IReadOnlyList<ReservationSummaryDto> Conflicts);
+    IReadOnlyList<ReservationSummaryDto> Conflicts,
+    IReadOnlyList<DomeBlockDto> BlockedRanges);

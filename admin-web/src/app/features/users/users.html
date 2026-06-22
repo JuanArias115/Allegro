@@ -1,0 +1,91 @@
+<section class="app-page">
+  <div class="page-head">
+    <h1>Usuarios</h1>
+    <button mat-flat-button color="primary" (click)="create()">
+      <mat-icon>person_add</mat-icon> Nuevo usuario
+    </button>
+  </div>
+
+  <div class="search">
+    <mat-form-field appearance="outline" class="search__field">
+      <mat-label>Buscar por correo o nombre</mat-label>
+      <input matInput [(ngModel)]="query" (keyup.enter)="search()" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <button mat-stroked-button (click)="search()">Buscar</button>
+  </div>
+
+  @if (loading()) {
+    <app-skeleton [height]="60" [rows]="5" />
+  } @else if (error()) {
+    <app-error-state (retry)="search()" />
+  } @else if (!users().length) {
+    <app-empty-state icon="group" title="Sin usuarios" description="No se encontraron usuarios." />
+  } @else {
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>UID</th>
+            <th>Proveedor</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Creado</th>
+            <th>Último acceso</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of users(); track u.uid) {
+            <tr [class.blocked]="u.disabled">
+              <td>{{ u.name || '—' }}</td>
+              <td>{{ u.email }}</td>
+              <td><code>{{ maskUid(u.uid) }}</code></td>
+              <td>{{ u.provider }}</td>
+              <td>
+                <span class="role" [class.role--admin]="u.role === 'admin'">
+                  {{ u.role === 'admin' ? 'Admin' : u.role === 'operator' ? 'Operador' : 'Sin rol' }}
+                </span>
+              </td>
+              <td>
+                <span class="state" [class.state--off]="u.disabled">
+                  {{ u.disabled ? 'Bloqueado' : 'Activo' }}
+                </span>
+              </td>
+              <td>{{ u.createdAtUtc ? (u.createdAtUtc | date: 'shortDate') : '—' }}</td>
+              <td>{{ u.lastLoginAtUtc ? (u.lastLoginAtUtc | date: 'short') : '—' }}</td>
+              <td class="row-actions">
+                <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Acciones">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="edit(u)">
+                    <mat-icon>edit</mat-icon><span>Editar nombre / rol</span>
+                  </button>
+                  <button mat-menu-item (click)="regenerateLink(u)">
+                    <mat-icon>link</mat-icon><span>Enlace de activación</span>
+                  </button>
+                  <button mat-menu-item (click)="revokeSessions(u)">
+                    <mat-icon>logout</mat-icon><span>Revocar sesiones</span>
+                  </button>
+                  <button mat-menu-item (click)="toggleStatus(u)">
+                    <mat-icon>{{ u.disabled ? 'lock_open' : 'block' }}</mat-icon>
+                    <span>{{ u.disabled ? 'Reactivar' : 'Bloquear' }}</span>
+                  </button>
+                </mat-menu>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (nextPageToken()) {
+      <div class="more">
+        <button mat-stroked-button (click)="loadMore()">Cargar más</button>
+      </div>
+    }
+  }
+</section>

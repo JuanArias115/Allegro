@@ -1,0 +1,35 @@
+<section class="app-page">
+  <h1 class="app-page__title">Configuración</h1>
+
+  <div class="panel">
+    <div class="panel__head">Tu cuenta</div>
+    <dl class="kv">
+      <dt>Nombre</dt><dd>{{ user()?.name || '—' }}</dd>
+      <dt>Correo</dt><dd>{{ user()?.email }}</dd>
+      <dt>Rol</dt><dd>{{ user()?.role === 'admin' ? 'Administrador' : 'Operador' }}</dd>
+    </dl>
+  </div>
+
+  <div class="panel">
+    <div class="panel__head">Entorno</div>
+    <dl class="kv">
+      <dt>API</dt><dd><code>{{ apiBaseUrl }}</code></dd>
+      <dt>Proyecto Firebase</dt><dd><code>{{ firebaseProject }}</code></dd>
+      <dt>Zona horaria</dt><dd>America/Bogota</dd>
+      <dt>Moneda</dt><dd>COP</dd>
+    </dl>
+  </div>
+
+  <div class="panel panel--note">
+    <mat-icon>info</mat-icon>
+    <div>
+      <p class="note__title">Acceso por claims (RequireAppAccessClaim)</p>
+      <p class="note__desc">
+        La restricción que exige el claim <code>app_access</code> se controla en el backend
+        (<code>Authorization__RequireAppAccessClaim</code>). Mientras esté desactivada, los usuarios
+        actuales de la app móvil siguen funcionando. Actívala solo cuando todos los usuarios tengan
+        sus claims asignados. El procedimiento está documentado en el README.
+      </p>
+    </div>
+  </div>
+</section>
