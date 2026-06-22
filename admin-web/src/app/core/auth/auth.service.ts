@@ -19,6 +19,7 @@ export interface SessionUser {
   uid: string;
   name: string | null;
   email: string | null;
+  photoURL: string | null;
   role: Role | null;
   appAccess: boolean;
 }
@@ -87,6 +88,7 @@ export class AuthService {
       uid: fbUser.uid,
       name: fbUser.displayName,
       email: fbUser.email,
+      photoURL: fbUser.photoURL,
       role,
       appAccess,
     };
