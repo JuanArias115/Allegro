@@ -202,7 +202,15 @@ class _ReservationFormScreenState extends ConsumerState<ReservationFormScreen> {
           _isEdit ? 'Reserva actualizada' : 'Reserva creada',
           type: AppMessageType.success,
         );
-        context.go('/reservations/${result.id}');
+        // Navegación con pila correcta para no "atrapar" al usuario:
+        // - Editar: volver al detalle existente (que se refresca al invalidarse).
+        // - Crear: reemplazar el formulario por el detalle, conservando el shell
+        //   debajo, de modo que "atrás" regrese al listado/hoy.
+        if (_isEdit) {
+          context.pop();
+        } else {
+          context.pushReplacement('/reservations/${result.id}');
+        }
       }
     } catch (e) {
       if (mounted) {
