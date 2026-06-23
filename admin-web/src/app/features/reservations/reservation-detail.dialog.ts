@@ -38,6 +38,7 @@ export class ReservationDetailDialog {
   private readonly id = inject<string>(MAT_DIALOG_DATA);
 
   protected readonly loading = signal(true);
+  protected readonly error = signal(false);
   protected readonly reservation = signal<Reservation | null>(null);
   protected readonly products = signal<Product[]>([]);
   protected changed = false;
@@ -54,13 +55,26 @@ export class ReservationDetailDialog {
   });
 
   constructor() {
+    this.reload();
+  }
+
+  reload(): void {
+    this.loading.set(true);
+    this.error.set(false);
     forkJoin({
       reservation: this.api.getById(this.id),
       products: this.catalog.products(true),
-    }).subscribe(({ reservation, products }) => {
-      this.reservation.set(reservation);
-      this.products.set(products);
-      this.loading.set(false);
+    }).subscribe({
+      next: ({ reservation, products }) => {
+        this.reservation.set(reservation);
+        this.products.set(products);
+        this.loading.set(false);
+      },
+      error: () => {
+        // Nunca dejar el diálogo atrapado en "Cargando…": mostrar error y permitir cerrar.
+        this.error.set(true);
+        this.loading.set(false);
+      },
     });
   }
 

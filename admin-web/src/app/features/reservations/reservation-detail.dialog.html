@@ -1,9 +1,26 @@
-@if (loading()) {
-  <h2 mat-dialog-title>Reserva</h2>
-  <mat-dialog-content><p>Cargando…</p></mat-dialog-content>
-} @else if (reservation(); as r) {
-  <h2 mat-dialog-title>{{ r.guestName }} · {{ r.domeName }}</h2>
-  <mat-dialog-content>
+<h2 mat-dialog-title class="dlg-title">
+  <span class="dlg-title__text">
+    @if (reservation(); as r) {
+      {{ r.guestName }} · {{ r.domeName }}
+    } @else {
+      Reserva
+    }
+  </span>
+  <button mat-icon-button class="dlg-title__close" (click)="close()" aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  @if (loading()) {
+    <p class="muted">Cargando…</p>
+  } @else if (error()) {
+    <div class="detail-error">
+      <mat-icon>error_outline</mat-icon>
+      <p>No se pudo cargar la reserva.</p>
+      <button mat-stroked-button (click)="reload()">Reintentar</button>
+    </div>
+  } @else if (reservation(); as r) {
     <!-- Resumen -->
     <div class="summary">
       <div><span class="k">Fechas</span><span>{{ r.checkIn }} → {{ r.checkOut }}</span></div>
@@ -93,8 +110,9 @@
         <button mat-flat-button color="primary" type="submit">Agregar</button>
       </form>
     }
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-button (click)="close()">Cerrar</button>
-  </mat-dialog-actions>
-}
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cerrar</button>
+</mat-dialog-actions>
