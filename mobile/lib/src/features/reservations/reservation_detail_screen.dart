@@ -272,15 +272,25 @@ class _Detail extends ConsumerWidget {
                   expand: true,
                   color: AppColors.blue,
                   onPressed: () async {
-                    final res = await showAddConsumptionSheet(context, ref);
-                    if (res != null) {
+                    final res = await showAddConsumptionSheet(
+                      context,
+                      ref,
+                      guestName: r.guestName,
+                    );
+                    if (res != null && res.isNotEmpty) {
                       await guard(
-                        () => repo.addConsumption(
-                          r.id,
-                          productId: res.productId,
-                          quantity: res.quantity,
-                        ),
-                        'Consumo agregado',
+                        () async {
+                          for (final c in res) {
+                            await repo.addConsumption(
+                              r.id,
+                              productId: c.productId,
+                              quantity: c.quantity,
+                            );
+                          }
+                        },
+                        res.length == 1
+                            ? 'Consumo agregado'
+                            : 'Consumos agregados',
                       );
                     }
                   },
