@@ -56,6 +56,7 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -69,10 +70,10 @@ class _Chip extends StatelessWidget {
           ),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? AppColors.mint : AppColors.surface,
+            color: selected ? cs.primaryContainer : cs.surface,
             borderRadius: AppRadii.all(AppRadii.pill),
             border: Border.all(
-              color: selected ? Colors.transparent : AppColors.hairline,
+              color: selected ? Colors.transparent : cs.outlineVariant,
             ),
           ),
           child: Text(
@@ -81,7 +82,7 @@ class _Chip extends StatelessWidget {
               fontFamily: 'Manrope',
               fontSize: 13.5,
               fontWeight: FontWeight.w700,
-              color: selected ? AppColors.forestDark : AppColors.textSecondary,
+              color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
             ),
           ),
         ),
