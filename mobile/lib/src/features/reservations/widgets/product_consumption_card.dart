@@ -6,7 +6,8 @@ import '../../../models/product.dart';
 
 /// Tarjeta de producto para el menú de consumos. Muestra nombre, categoría,
 /// precio y un control de cantidad. Sin iconos de categoría (dinámicas): si el
-/// producto tiene imagen se muestra; si no, se omite el adorno.
+/// producto tiene imagen se muestra; si no, se omite el adorno. Colores tomados
+/// del ColorScheme para respetar modo claro/oscuro.
 class ProductConsumptionCard extends StatelessWidget {
   final Product product;
   final int quantity;
@@ -25,14 +26,15 @@ class ProductConsumptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final selected = quantity > 0;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.x4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cs.surface,
         borderRadius: AppRadii.all(AppRadii.lg),
         border: Border.all(
-          color: selected ? AppColors.forest : AppColors.hairline,
+          color: selected ? cs.primary : cs.outlineVariant,
           width: selected ? 1.4 : 1,
         ),
         boxShadow: AppShadows.soft,
@@ -58,44 +60,46 @@ class ProductConsumptionCard extends StatelessWidget {
               children: [
                 Text(
                   product.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Manrope',
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: cs.onSurface,
                   ),
                 ),
                 if (product.categoryName.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(
                     product.categoryName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 12.5,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                 ],
                 const SizedBox(height: 4),
                 Text(
                   Formatters.money(product.currentPrice),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Manrope',
                     fontSize: 14.5,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.forest,
+                    color: cs.onPrimaryContainer,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.x3),
-          selected ? _QuantityControl(
-            quantity: quantity,
-            onIncrement: onIncrement,
-            onDecrement: onDecrement,
-          ) : _AddButton(onTap: onAdd),
+          selected
+              ? _QuantityControl(
+                  quantity: quantity,
+                  onIncrement: onIncrement,
+                  onDecrement: onDecrement,
+                )
+              : _AddButton(onTap: onAdd),
         ],
       ),
     );
@@ -108,16 +112,17 @@ class _AddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: AppColors.forest,
+      color: cs.primary,
       borderRadius: AppRadii.all(AppRadii.pill),
       child: InkWell(
         borderRadius: AppRadii.all(AppRadii.pill),
         onTap: onTap,
-        child: const SizedBox(
+        child: SizedBox(
           width: 40,
           height: 40,
-          child: Icon(Icons.add_rounded, color: AppColors.white, size: 22),
+          child: Icon(Icons.add_rounded, color: cs.onPrimary, size: 22),
         ),
       ),
     );
@@ -137,9 +142,10 @@ class _QuantityControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.mint,
+        color: cs.primaryContainer,
         borderRadius: AppRadii.all(AppRadii.pill),
       ),
       child: Row(
@@ -151,11 +157,11 @@ class _QuantityControl extends StatelessWidget {
             child: Text(
               '$quantity',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Manrope',
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: AppColors.forestDark,
+                color: cs.onPrimaryContainer,
               ),
             ),
           ),
@@ -173,8 +179,9 @@ class _RoundIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: AppColors.forest,
+      color: cs.primary,
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -182,7 +189,7 @@ class _RoundIcon extends StatelessWidget {
         child: SizedBox(
           width: 36,
           height: 36,
-          child: Icon(icon, color: AppColors.white, size: 20),
+          child: Icon(icon, color: cs.onPrimary, size: 20),
         ),
       ),
     );

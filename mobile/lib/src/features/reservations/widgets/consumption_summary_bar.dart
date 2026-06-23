@@ -24,11 +24,12 @@ class ConsumptionSummaryBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final hasItems = count > 0;
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        boxShadow: [
+      decoration: BoxDecoration(
+        color: cs.surface,
+        boxShadow: const [
           BoxShadow(
             color: Color(0x14182018),
             blurRadius: 16,
@@ -56,21 +57,21 @@ class ConsumptionSummaryBar extends StatelessWidget {
                       hasItems
                           ? '$count producto${count == 1 ? '' : 's'}'
                           : 'Sin productos',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Manrope',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       Formatters.money(total),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Manrope',
                         fontSize: 19,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: cs.onSurface,
                       ),
                     ),
                   ],

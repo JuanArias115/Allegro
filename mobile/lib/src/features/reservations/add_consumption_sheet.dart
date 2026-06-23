@@ -24,7 +24,7 @@ Future<List<ConsumptionResult>?> showAddConsumptionSheet(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    backgroundColor: AppColors.cream,
+    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
     builder: (_) => _AddConsumptionSheet(guestName: guestName),
   );
 }
@@ -195,6 +195,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.x5, 0, AppSpacing.x5, 0),
       child: Row(
@@ -211,13 +212,13 @@ class _Header extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   'Agregar consumos a la reserva',
                   style: TextStyle(
                     fontFamily: 'Manrope',
                     fontSize: 13.5,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
+                    color: cs.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -227,23 +228,23 @@ class _Header extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
+              Text(
                 'Seleccionado',
                 style: TextStyle(
                   fontFamily: 'Manrope',
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: cs.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 Formatters.money(total),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Manrope',
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.forest,
+                  color: cs.onPrimaryContainer,
                 ),
               ),
             ],
@@ -261,6 +262,7 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
       child: TextField(
@@ -274,21 +276,21 @@ class _SearchField extends StatelessWidget {
         decoration: InputDecoration(
           isDense: true,
           filled: true,
-          fillColor: AppColors.surface,
+          fillColor: cs.surface,
           hintText: 'Buscar producto',
-          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+          prefixIcon: Icon(Icons.search_rounded, color: cs.onSurfaceVariant),
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
           enabledBorder: OutlineInputBorder(
             borderRadius: AppRadii.all(AppRadii.md),
-            borderSide: const BorderSide(color: AppColors.hairline),
+            borderSide: BorderSide(color: cs.outlineVariant),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: AppRadii.all(AppRadii.md),
-            borderSide: const BorderSide(color: AppColors.forest, width: 1.6),
+            borderSide: BorderSide(color: cs.primary, width: 1.6),
           ),
           border: OutlineInputBorder(
             borderRadius: AppRadii.all(AppRadii.md),
-            borderSide: const BorderSide(color: AppColors.hairline),
+            borderSide: BorderSide(color: cs.outlineVariant),
           ),
         ),
       ),
